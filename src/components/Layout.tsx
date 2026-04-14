@@ -1,11 +1,17 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Outlet, Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
+import { isAdmin } from '../services/admin'
 
 export default function Layout() {
   const { user, signOut } = useAuth()
   const location = useLocation()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [isAdminUser, setIsAdminUser] = useState(false)
+
+  useEffect(() => {
+    isAdmin().then(setIsAdminUser)
+  }, [])
 
   const navItems = [
     { path: '/', label: 'ホーム' },
@@ -52,6 +58,14 @@ export default function Layout() {
 
             {/* User */}
             <div className="flex items-center gap-3">
+              {isAdminUser && (
+                <Link
+                  to="/admin"
+                  className="text-sm text-gray-600 hover:text-gray-900 font-medium"
+                >
+                  管理者
+                </Link>
+              )}
               <span className="hidden sm:block text-sm text-gray-600">
                 {user?.user_metadata?.full_name || user?.email}
               </span>

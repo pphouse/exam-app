@@ -22,3 +22,37 @@ export interface PracticeState {
   showAnswer: boolean
   sessionId: string
 }
+
+export interface Profile {
+  id: string
+  email: string
+  full_name: string | null
+  role: 'user' | 'admin'
+  created_at: string
+  updated_at: string
+}
+
+export interface UserStats {
+  id: string
+  email: string
+  full_name: string | null
+  role: 'user' | 'admin'
+  created_at: string
+  total_exams: number
+  exam_count: number
+  practice_count: number
+  avg_exam_score: number | null
+  passed_count: number
+  last_activity: string | null
+}
+
+export interface QuestionStats {
+  id: string
+  question_id: string
+  chapter: string
+  difficulty: string
+  question_text: string
+  total_attempts: number
+  correct_count: number
+  accuracy_rate: number | null
+}

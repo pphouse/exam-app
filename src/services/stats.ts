@@ -56,7 +56,7 @@ export async function getOverallStats(): Promise<{
   data.forEach(q => {
     const current = chapterMap.get(q.chapter) || { count: 0, totalAccuracy: 0, withStats: 0 }
     current.count++
-    if (q.stats) {
+    if (q.stats && q.stats.accuracy_rate !== null) {
       current.totalAccuracy += q.stats.accuracy_rate
       current.withStats++
     }
@@ -76,7 +76,7 @@ export async function getOverallStats(): Promise<{
   data.forEach(q => {
     const current = difficultyMap.get(q.difficulty) || { count: 0, totalAccuracy: 0, withStats: 0 }
     current.count++
-    if (q.stats) {
+    if (q.stats && q.stats.accuracy_rate !== null) {
       current.totalAccuracy += q.stats.accuracy_rate
       current.withStats++
     }
