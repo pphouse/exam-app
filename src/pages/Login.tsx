@@ -1,16 +1,29 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 
 export default function Login() {
   const { isAuthenticated, isLoading, signInWithGoogle } = useAuth()
   const navigate = useNavigate()
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     if (isAuthenticated) {
       navigate('/')
     }
   }, [isAuthenticated, navigate])
+
+  const handleLogin = async () => {
+    try {
+      setError(null)
+      console.log('Starting Google login...')
+      await signInWithGoogle()
+      console.log('Login initiated')
+    } catch (err) {
+      console.error('Login error:', err)
+      setError(err instanceof Error ? err.message : 'ログインに失敗しました')
+    }
+  }
 
   if (isLoading) {
     return (
@@ -40,8 +53,14 @@ export default function Login() {
             </ul>
           </div>
 
+          {error && (
+            <div className="bg-red-50 text-red-700 p-3 rounded-lg text-sm mb-4">
+              {error}
+            </div>
+          )}
+
           <button
-            onClick={signInWithGoogle}
+            onClick={handleLogin}
             className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-300 rounded-lg shadow-sm bg-white text-gray-700 hover:bg-gray-50 transition-colors"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">

@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { Routes, Route, Navigate } from 'react-router-dom'
 import { useAuth } from './hooks/useAuth'
 import Layout from './components/Layout'
 import Login from './pages/Login'
@@ -25,26 +25,24 @@ function PrivateRoute({ children }: { children: React.ReactNode }) {
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route
-          path="/"
-          element={
-            <PrivateRoute>
-              <Layout />
-            </PrivateRoute>
-          }
-        >
-          <Route index element={<Home />} />
-          <Route path="exam" element={<Exam />} />
-          <Route path="exam/result/:sessionId" element={<ExamResult />} />
-          <Route path="practice" element={<Practice />} />
-          <Route path="history" element={<History />} />
-          <Route path="stats" element={<Stats />} />
-        </Route>
-      </Routes>
-    </BrowserRouter>
+    <Routes>
+      <Route path="/login" element={<Login />} />
+      <Route
+        path="/"
+        element={
+          <PrivateRoute>
+            <Layout />
+          </PrivateRoute>
+        }
+      >
+        <Route index element={<Home />} />
+        <Route path="exam" element={<Exam />} />
+        <Route path="exam/result/:sessionId" element={<ExamResult />} />
+        <Route path="practice" element={<Practice />} />
+        <Route path="history" element={<History />} />
+        <Route path="stats" element={<Stats />} />
+      </Route>
+    </Routes>
   )
 }
 
