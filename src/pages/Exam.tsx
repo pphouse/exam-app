@@ -6,7 +6,7 @@ import { createExamSession, submitAnswer, finishExamSession } from '../services/
 import type { Question, ExamState } from '../types'
 
 const EXAM_QUESTIONS = 60
-const TIME_LIMIT = 60 * 60 // 60 minutes in seconds
+const TIME_LIMIT = 60 * 60
 
 export default function Exam() {
   const { user } = useAuth()
@@ -16,7 +16,6 @@ export default function Exam() {
   const [submitting, setSubmitting] = useState(false)
   const [remainingTime, setRemainingTime] = useState(TIME_LIMIT)
 
-  // Initialize exam
   useEffect(() => {
     const initExam = async () => {
       if (!user) return
@@ -45,7 +44,6 @@ export default function Exam() {
     initExam()
   }, [user, navigate])
 
-  // Timer
   useEffect(() => {
     if (!state) return
 
@@ -98,33 +96,22 @@ export default function Exam() {
 
     const unanswered = state.questions.filter((q) => !state.answers[q.id]).length
     if (unanswered > 0) {
-      const confirm = window.confirm(
-        `まだ${unanswered}問が未回答です。終了しますか？`
-      )
+      const confirm = window.confirm(`まだ${unanswered}問が未回答です。終了しますか？`)
       if (!confirm) return
     }
 
     setSubmitting(true)
 
     try {
-      // Submit all answers
       let correctCount = 0
       for (const question of state.questions) {
         const userAnswer = state.answers[question.id]
         if (userAnswer) {
-          await submitAnswer(
-            state.sessionId,
-            question.id,
-            userAnswer,
-            question.correct_answer
-          )
-          if (userAnswer === question.correct_answer) {
-            correctCount++
-          }
+          await submitAnswer(state.sessionId, question.id, userAnswer, question.correct_answer)
+          if (userAnswer === question.correct_answer) correctCount++
         }
       }
 
-      // Calculate and save score
       const score = Math.round((correctCount / state.questions.length) * 100)
       await finishExamSession(state.sessionId, score)
 
@@ -138,75 +125,73 @@ export default function Exam() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="flex items-center justify-center py-20">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">試験を準備中...</p>
+          <div className="w-8 h-8 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin mx-auto"></div>
+          <p className="mt-3 text-gray-600 text-sm">試験を準備中...</p>
         </div>
       </div>
     )
   }
 
-  if (!state) {
-    return null
-  }
+  if (!state) return null
 
   const currentQuestion = state.questions[state.currentIndex]
   const currentAnswer = state.answers[currentQuestion.id]
   const minutes = Math.floor(remainingTime / 60)
   const seconds = remainingTime % 60
+  const answeredCount = Object.keys(state.answers).length
+  const isTimeLow = remainingTime < 300
 
   return (
-    <div className="px-4 pb-8">
+    <div className="max-w-3xl mx-auto">
       {/* Header */}
-      <div className="sticky top-0 bg-white border-b py-3 mb-6 -mx-4 px-4 z-10">
-        <div className="flex justify-between items-center">
-          <div className="text-lg font-semibold">
-            問題 {state.currentIndex + 1} / {state.questions.length}
+      <div className="sticky top-14 z-40 bg-gray-50 -mx-4 px-4 py-3 border-b border-gray-200 mb-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <span className="font-bold text-gray-900">
+              {state.currentIndex + 1} / {state.questions.length}
+            </span>
+            <span className="text-sm text-gray-500">
+              回答済み {answeredCount}問
+            </span>
           </div>
-          <div
-            className={`text-xl font-mono font-bold ${
-              remainingTime < 300 ? 'text-red-600' : 'text-gray-900'
-            }`}
-          >
+          <div className={`font-mono font-bold ${isTimeLow ? 'text-red-600' : 'text-gray-900'}`}>
             {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
           </div>
         </div>
       </div>
 
       {/* Question */}
-      <div className="bg-white rounded-xl shadow-md p-6 mb-6">
-        <div className="flex items-center gap-2 mb-4">
-          <span className="px-2 py-1 bg-blue-100 text-blue-700 text-sm rounded">
+      <div className="bg-white rounded-xl border border-gray-200 p-5 mb-4">
+        <div className="flex gap-2 mb-4">
+          <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded">
             {currentQuestion.chapter}
           </span>
-          <span className="px-2 py-1 bg-gray-100 text-gray-700 text-sm rounded">
+          <span className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded">
             {currentQuestion.difficulty}
           </span>
         </div>
 
-        <p className="text-lg text-gray-900 mb-6 whitespace-pre-wrap">
-          {currentQuestion.question_text}
-        </p>
+        <p className="text-gray-900 mb-6 whitespace-pre-wrap">{currentQuestion.question_text}</p>
 
-        <div className="space-y-3">
+        <div className="space-y-2">
           {['A', 'B', 'C', 'D'].map((option) => {
             const choiceKey = `choice_${option.toLowerCase()}` as keyof Question
             const choiceText = currentQuestion[choiceKey] as string
+            const isSelected = currentAnswer === option
 
             return (
               <button
                 key={option}
                 onClick={() => handleAnswer(option)}
-                className={`w-full text-left p-4 rounded-lg border-2 transition-colors ${
-                  currentAnswer === option
-                    ? 'border-blue-500 bg-blue-50'
+                className={`w-full text-left p-3 rounded-lg border transition-colors ${
+                  isSelected
+                    ? 'border-gray-900 bg-gray-50'
                     : 'border-gray-200 hover:border-gray-300'
                 }`}
               >
-                <span className="font-semibold text-gray-700 mr-2">
-                  {option}.
-                </span>
+                <span className="font-medium text-gray-700 mr-2">{option}.</span>
                 <span className="text-gray-900">{choiceText}</span>
               </button>
             )
@@ -215,13 +200,13 @@ export default function Exam() {
       </div>
 
       {/* Navigation */}
-      <div className="flex justify-between items-center mb-6">
+      <div className="flex items-center justify-between gap-3 mb-4">
         <button
           onClick={handlePrev}
           disabled={state.currentIndex === 0}
-          className="px-4 py-2 border rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="px-4 py-2 border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed"
         >
-          前の問題
+          前へ
         </button>
         <button
           onClick={handleFinish}
@@ -233,31 +218,36 @@ export default function Exam() {
         <button
           onClick={handleNext}
           disabled={state.currentIndex === state.questions.length - 1}
-          className="px-4 py-2 border rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="px-4 py-2 border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed"
         >
-          次の問題
+          次へ
         </button>
       </div>
 
       {/* Question grid */}
-      <div className="bg-white rounded-xl shadow-md p-4">
-        <h3 className="text-sm font-semibold text-gray-700 mb-3">問題一覧</h3>
-        <div className="grid grid-cols-10 gap-2">
-          {state.questions.map((q, i) => (
-            <button
-              key={q.id}
-              onClick={() => handleGoTo(i)}
-              className={`w-8 h-8 text-sm rounded ${
-                i === state.currentIndex
-                  ? 'bg-blue-600 text-white'
-                  : state.answers[q.id]
-                  ? 'bg-green-100 text-green-700 border border-green-300'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
-              }`}
-            >
-              {i + 1}
-            </button>
-          ))}
+      <div className="bg-white rounded-xl border border-gray-200 p-4">
+        <h3 className="text-xs font-medium text-gray-500 mb-3">問題一覧</h3>
+        <div className="grid grid-cols-10 gap-1">
+          {state.questions.map((q, i) => {
+            const isAnswered = !!state.answers[q.id]
+            const isCurrent = i === state.currentIndex
+
+            return (
+              <button
+                key={q.id}
+                onClick={() => handleGoTo(i)}
+                className={`w-7 h-7 text-xs rounded ${
+                  isCurrent
+                    ? 'bg-gray-900 text-white'
+                    : isAnswered
+                    ? 'bg-gray-200 text-gray-700'
+                    : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
+                }`}
+              >
+                {i + 1}
+              </button>
+            )
+          })}
         </div>
       </div>
     </div>

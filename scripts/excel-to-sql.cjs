@@ -2,8 +2,8 @@ const XLSX = require('xlsx');
 const fs = require('fs');
 const path = require('path');
 
-// Excelファイルのパス
-const excelPath = path.join(__dirname, '../../医療生成AIパスポート_問題プール_v1.xlsx');
+// Excelファイルのパス（修正済みファイルを使用）
+const excelPath = '/Users/naoto/一般社団法人/問題作成/医療生成AIパスポート_問題プール_v1_修正済.xlsx';
 
 // Excelファイルを読み込み
 const workbook = XLSX.readFile(excelPath);
@@ -25,7 +25,8 @@ console.log(`有効な問題数: ${data.length}問`);
 // SQLエスケープ関数
 function escapeSQL(str) {
   if (str === null || str === undefined || str === '') return 'NULL';
-  return "'" + String(str).replace(/'/g, "''").replace(/\n/g, '\\n') + "'";
+  // 改行はそのまま保持（PostgreSQLは改行を直接扱える）
+  return "'" + String(str).replace(/'/g, "''") + "'";
 }
 
 // SQL生成
