@@ -3,7 +3,8 @@ import type { Profile, UserStats, QuestionStats, ExamSession, Answer } from '../
 
 // 現在のユーザーのプロフィールを取得
 export async function getCurrentProfile(): Promise<Profile | null> {
-  const { data: { user } } = await supabase.auth.getUser()
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  console.log('Auth user:', user, 'Auth error:', authError)
   if (!user) return null
 
   const { data, error } = await supabase
@@ -11,6 +12,8 @@ export async function getCurrentProfile(): Promise<Profile | null> {
     .select('*')
     .eq('id', user.id)
     .single()
+
+  console.log('Profile data:', data, 'Profile error:', error)
 
   if (error) {
     console.error('Failed to get profile:', error)
