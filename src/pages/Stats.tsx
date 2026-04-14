@@ -4,9 +4,10 @@ import { getOverallStats } from '../services/stats'
 interface OverallStats {
   totalQuestions: number
   totalAttempts: number
+  totalCorrect: number
   averageAccuracy: number
-  byChapter: Array<{ chapter: string; count: number; avgAccuracy: number }>
-  byDifficulty: Array<{ difficulty: string; count: number; avgAccuracy: number }>
+  byChapter: Array<{ chapter: string; questionCount: number; attempts: number; correct: number; avgAccuracy: number }>
+  byDifficulty: Array<{ difficulty: string; questionCount: number; attempts: number; correct: number; avgAccuracy: number }>
 }
 
 export default function Stats() {
@@ -50,7 +51,7 @@ export default function Stats() {
       <h1 className="text-xl font-bold text-gray-900 mb-6">統計</h1>
 
       {/* Overview */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <div className="bg-white rounded-xl border border-gray-200 p-4 text-center">
           <div className="text-2xl font-bold text-gray-900">{stats.totalQuestions}</div>
           <div className="text-sm text-gray-500">問題数</div>
@@ -60,8 +61,12 @@ export default function Stats() {
           <div className="text-sm text-gray-500">総回答数</div>
         </div>
         <div className="bg-white rounded-xl border border-gray-200 p-4 text-center">
+          <div className="text-2xl font-bold text-gray-900">{stats.totalCorrect}/{stats.totalAttempts}</div>
+          <div className="text-sm text-gray-500">正解数</div>
+        </div>
+        <div className="bg-white rounded-xl border border-gray-200 p-4 text-center">
           <div className="text-2xl font-bold text-gray-900">{stats.averageAccuracy.toFixed(1)}%</div>
-          <div className="text-sm text-gray-500">平均正解率</div>
+          <div className="text-sm text-gray-500">正解率</div>
         </div>
       </div>
 
@@ -74,7 +79,7 @@ export default function Stats() {
               <div className="flex justify-between text-sm mb-1">
                 <span className="text-gray-700">{chapter.chapter}</span>
                 <span className="text-gray-900">
-                  {chapter.count}問 / {chapter.avgAccuracy.toFixed(1)}%
+                  {chapter.correct}/{chapter.attempts} ({chapter.avgAccuracy.toFixed(1)}%)
                 </span>
               </div>
               <div className="w-full bg-gray-100 rounded-full h-2">
@@ -98,7 +103,7 @@ export default function Stats() {
               <div key={diff.difficulty} className="bg-gray-50 rounded-lg p-4 text-center">
                 <div className="text-sm font-medium text-gray-700">{diff.difficulty}</div>
                 <div className="text-xl font-bold text-gray-900 my-1">{diff.avgAccuracy.toFixed(1)}%</div>
-                <div className="text-xs text-gray-500">{diff.count}問</div>
+                <div className="text-xs text-gray-500">{diff.correct}/{diff.attempts}</div>
               </div>
             ))}
         </div>

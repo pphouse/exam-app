@@ -30,15 +30,20 @@ export async function getQuestionsWithStats(): Promise<QuestionWithStats[]> {
 export async function getOverallStats(): Promise<{
   totalQuestions: number
   totalAttempts: number
+  totalCorrect: number
   averageAccuracy: number
   byChapter: Array<{
     chapter: string
-    count: number
+    questionCount: number
+    attempts: number
+    correct: number
     avgAccuracy: number
   }>
   byDifficulty: Array<{
     difficulty: string
-    count: number
+    questionCount: number
+    attempts: number
+    correct: number
     avgAccuracy: number
   }>
 }> {
@@ -47,18 +52,17 @@ export async function getOverallStats(): Promise<{
   const totalQuestions = data.length
   const questionsWithStats = data.filter(q => q.stats)
   const totalAttempts = questionsWithStats.reduce((sum, q) => sum + (q.stats?.total_attempts || 0), 0)
-  const averageAccuracy = questionsWithStats.length > 0
-    ? questionsWithStats.reduce((sum, q) => sum + (q.stats?.accuracy_rate || 0), 0) / questionsWithStats.length
-    : 0
+  const totalCorrect = questionsWithStats.reduce((sum, q) => sum + (q.stats?.correct_count || 0), 0)
+  const averageAccuracy = totalAttempts > 0 ? (totalCorrect / totalAttempts) * 100 : 0
 
   // Group by chapter
-  const chapterMap = new Map<string, { count: number; totalAccuracy: number; withStats: number }>()
+  const chapterMap = new Map<string, { questionCount: number; attempts: number; correct: number }>()
   data.forEach(q => {
-    const current = chapterMap.get(q.chapter) || { count: 0, totalAccuracy: 0, withStats: 0 }
-    current.count++
-    if (q.stats && q.stats.accuracy_rate !== null) {
-      current.totalAccuracy += q.stats.accuracy_rate
-      current.withStats++
+    const current = chapterMap.get(q.chapter) || { questionCount: 0, attempts: 0, correct: 0 }
+    current.questionCount++
+    if (q.stats) {
+      current.attempts += q.stats.total_attempts || 0
+      current.correct += q.stats.correct_count || 0
     }
     chapterMap.set(q.chapter, current)
   })
@@ -66,19 +70,21 @@ export async function getOverallStats(): Promise<{
   const byChapter = Array.from(chapterMap.entries())
     .map(([chapter, data]) => ({
       chapter,
-      count: data.count,
-      avgAccuracy: data.withStats > 0 ? data.totalAccuracy / data.withStats : 0,
+      questionCount: data.questionCount,
+      attempts: data.attempts,
+      correct: data.correct,
+      avgAccuracy: data.attempts > 0 ? (data.correct / data.attempts) * 100 : 0,
     }))
     .sort((a, b) => a.chapter.localeCompare(b.chapter))
 
   // Group by difficulty
-  const difficultyMap = new Map<string, { count: number; totalAccuracy: number; withStats: number }>()
+  const difficultyMap = new Map<string, { questionCount: number; attempts: number; correct: number }>()
   data.forEach(q => {
-    const current = difficultyMap.get(q.difficulty) || { count: 0, totalAccuracy: 0, withStats: 0 }
-    current.count++
-    if (q.stats && q.stats.accuracy_rate !== null) {
-      current.totalAccuracy += q.stats.accuracy_rate
-      current.withStats++
+    const current = difficultyMap.get(q.difficulty) || { questionCount: 0, attempts: 0, correct: 0 }
+    current.questionCount++
+    if (q.stats) {
+      current.attempts += q.stats.total_attempts || 0
+      current.correct += q.stats.correct_count || 0
     }
     difficultyMap.set(q.difficulty, current)
   })
@@ -86,13 +92,16 @@ export async function getOverallStats(): Promise<{
   const byDifficulty = Array.from(difficultyMap.entries())
     .map(([difficulty, data]) => ({
       difficulty,
-      count: data.count,
-      avgAccuracy: data.withStats > 0 ? data.totalAccuracy / data.withStats : 0,
+      questionCount: data.questionCount,
+      attempts: data.attempts,
+      correct: data.correct,
+      avgAccuracy: data.attempts > 0 ? (data.correct / data.attempts) * 100 : 0,
     }))
 
   return {
     totalQuestions,
     totalAttempts,
+    totalCorrect,
     averageAccuracy,
     byChapter,
     byDifficulty,
