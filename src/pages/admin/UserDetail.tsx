@@ -50,10 +50,12 @@ export default function AdminUserDetail() {
 
   const { profile, examSessions, chapterStats } = data
   const examOnlySessions = examSessions.filter(s => s.mode === 'exam' && s.score !== null)
+  const practiceSessions = examSessions.filter(s => s.mode === 'practice')
   const avgScore = examOnlySessions.length > 0
     ? Math.round(examOnlySessions.reduce((sum, s) => sum + (s.score || 0), 0) / examOnlySessions.length)
     : null
   const passCount = examOnlySessions.filter(s => (s.score || 0) >= 70).length
+  const totalPracticeQuestions = practiceSessions.reduce((sum, s) => sum + (s.total_questions || 0), 0)
 
   return (
     <div>
@@ -83,7 +85,7 @@ export default function AdminUserDetail() {
       </div>
 
       {/* Stats Overview */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
         <div className="bg-white rounded-xl border border-gray-200 p-4">
           <div className="text-2xl font-bold text-gray-900">{examOnlySessions.length}</div>
           <div className="text-sm text-gray-500">試験回数</div>
@@ -105,6 +107,10 @@ export default function AdminUserDetail() {
             {examOnlySessions.length > 0 ? Math.round((passCount / examOnlySessions.length) * 100) : 0}%
           </div>
           <div className="text-sm text-gray-500">合格率</div>
+        </div>
+        <div className="bg-white rounded-xl border border-gray-200 p-4">
+          <div className="text-2xl font-bold text-gray-900">{totalPracticeQuestions}</div>
+          <div className="text-sm text-gray-500">練習問題数</div>
         </div>
       </div>
 
@@ -133,15 +139,16 @@ export default function AdminUserDetail() {
         </div>
       )}
 
-      {/* Exam History */}
+      {/* Activity History */}
       <div className="bg-white rounded-xl border border-gray-200 p-5">
-        <h2 className="text-sm font-medium text-gray-900 mb-4">試験履歴</h2>
-        {examOnlySessions.length === 0 ? (
-          <p className="text-gray-500 text-sm">試験履歴がありません</p>
+        <h2 className="text-sm font-medium text-gray-900 mb-4">活動履歴</h2>
+        {examSessions.length === 0 ? (
+          <p className="text-gray-500 text-sm">活動履歴がありません</p>
         ) : (
           <div className="space-y-2">
-            {examOnlySessions.map((session) => {
-              const passed = (session.score || 0) >= 70
+            {examSessions.map((session) => {
+              const isExam = session.mode === 'exam'
+              const passed = isExam && (session.score || 0) >= 70
               return (
                 <div
                   key={session.id}
@@ -150,14 +157,18 @@ export default function AdminUserDetail() {
                   <div className="flex items-center gap-3">
                     <span
                       className={`px-2 py-1 text-xs font-medium rounded ${
-                        passed ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'
+                        isExam
+                          ? passed
+                            ? 'bg-green-100 text-green-700'
+                            : 'bg-red-100 text-red-700'
+                          : 'bg-blue-100 text-blue-700'
                       }`}
                     >
-                      {passed ? '合格' : '不合格'}
+                      {isExam ? (passed ? '合格' : '不合格') : '練習'}
                     </span>
                     <span className="text-sm text-gray-600">
-                      {session.finished_at
-                        ? new Date(session.finished_at).toLocaleDateString('ja-JP', {
+                      {(session.finished_at || session.created_at)
+                        ? new Date(session.finished_at || session.created_at).toLocaleDateString('ja-JP', {
                             year: 'numeric',
                             month: 'short',
                             day: 'numeric',
@@ -166,9 +177,18 @@ export default function AdminUserDetail() {
                           })
                         : '-'}
                     </span>
+                    {!isExam && (
+                      <span className="text-xs text-gray-400">
+                        {session.chapter || '全章'}
+                      </span>
+                    )}
                   </div>
-                  <div className={`font-bold ${passed ? 'text-green-600' : 'text-red-600'}`}>
-                    {session.score}%
+                  <div className={`font-bold ${
+                    isExam
+                      ? passed ? 'text-green-600' : 'text-red-600'
+                      : 'text-gray-600'
+                  }`}>
+                    {isExam ? `${session.score}%` : `${session.total_questions}問`}
                   </div>
                 </div>
               )

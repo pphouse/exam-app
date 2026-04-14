@@ -3,8 +3,7 @@ import type { Profile, UserStats, QuestionStats, ExamSession, Answer } from '../
 
 // 現在のユーザーのプロフィールを取得
 export async function getCurrentProfile(): Promise<Profile | null> {
-  const { data: { user }, error: authError } = await supabase.auth.getUser()
-  console.log('Auth user:', user, 'Auth error:', authError)
+  const { data: { user } } = await supabase.auth.getUser()
   if (!user) return null
 
   const { data, error } = await supabase
@@ -12,8 +11,6 @@ export async function getCurrentProfile(): Promise<Profile | null> {
     .select('*')
     .eq('id', user.id)
     .single()
-
-  console.log('Profile data:', data, 'Profile error:', error)
 
   if (error) {
     console.error('Failed to get profile:', error)
@@ -58,21 +55,25 @@ export async function getUserDetailStats(userId: string): Promise<{
     .eq('id', userId)
     .single()
 
-  // 試験セッション取得
+  // 全セッション取得（試験+練習）
   const { data: examSessions } = await supabase
     .from('exam_sessions')
     .select('*')
     .eq('user_id', userId)
     .order('created_at', { ascending: false })
 
+  const sessionIds = examSessions?.map(s => s.id) || []
+
   // 章別統計を計算
-  const { data: answers } = await supabase
-    .from('answers')
-    .select(`
-      *,
-      question:questions(chapter, question_text)
-    `)
-    .eq('session_id', examSessions?.map(s => s.id) || [])
+  const { data: answers } = sessionIds.length > 0
+    ? await supabase
+        .from('answers')
+        .select(`
+          *,
+          question:questions(chapter, question_text)
+        `)
+        .in('session_id', sessionIds)
+    : { data: [] }
 
   // 章別に集計
   const chapterMap = new Map<string, { total: number; correct: number }>()
