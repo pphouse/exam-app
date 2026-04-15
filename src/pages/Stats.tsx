@@ -161,7 +161,7 @@ export default function Stats() {
       </div>
 
       <div className="bg-gray-50 rounded-lg p-4 text-sm text-gray-600">
-        この統計は全ユーザーの回答データに基づいています。1回でも正解した問題を「正解済み」としています。
+        あなたの回答データに基づいた統計です。1回でも正解した問題を「正解済み」としています。
       </div>
     </div>
   )

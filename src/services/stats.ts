@@ -47,29 +47,79 @@ export async function getOverallStats(): Promise<{
     unanswered: number
   }>
 }> {
-  const data = await getQuestionsWithStats()
+  // Get current user
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) throw new Error('Not authenticated')
 
-  const totalQuestions = data.length
-  // 回答済み問題数（1回でも回答された問題）
-  const answeredQuestions = data.filter(q => q.stats && q.stats.total_attempts > 0).length
-  // 正解率50%以上を「正解済み」とみなす（または最後の回答が正解など、要件次第）
-  // ここでは「1回でも正解した問題」を正解済みとする
-  const correctQuestions = data.filter(q => q.stats && q.stats.correct_count > 0).length
-  const incorrectQuestions = answeredQuestions - correctQuestions
+  // Get all questions
+  const { data: questions, error: qError } = await supabase
+    .from('questions')
+    .select('id, chapter, difficulty')
+
+  if (qError) throw qError
+
+  // Get user's sessions
+  const { data: sessions, error: sError } = await supabase
+    .from('exam_sessions')
+    .select('id')
+    .eq('user_id', user.id)
+
+  if (sError) throw sError
+
+  const sessionIds = sessions?.map(s => s.id) || []
+
+  // Get user's answers
+  const { data: answers, error: aError } = sessionIds.length > 0
+    ? await supabase
+        .from('answers')
+        .select('question_id, is_correct')
+        .in('session_id', sessionIds)
+    : { data: [], error: null }
+
+  if (aError) throw aError
+
+  // Build user's answer map: question_id -> { hasCorrect, hasIncorrect }
+  const userAnswerMap = new Map<string, { hasCorrect: boolean; hasIncorrect: boolean }>()
+  answers?.forEach(a => {
+    const current = userAnswerMap.get(a.question_id) || { hasCorrect: false, hasIncorrect: false }
+    if (a.is_correct) {
+      current.hasCorrect = true
+    } else {
+      current.hasIncorrect = true
+    }
+    userAnswerMap.set(a.question_id, current)
+  })
+
+  const totalQuestions = questions?.length || 0
+  let correctQuestions = 0
+  let incorrectQuestions = 0
 
   // Group by chapter
   const chapterMap = new Map<string, { total: number; correct: number; incorrect: number }>()
-  data.forEach(q => {
-    const current = chapterMap.get(q.chapter) || { total: 0, correct: 0, incorrect: 0 }
-    current.total++
-    if (q.stats && q.stats.total_attempts > 0) {
-      if (q.stats.correct_count > 0) {
-        current.correct++
-      } else {
-        current.incorrect++
-      }
-    }
-    chapterMap.set(q.chapter, current)
+  // Group by difficulty
+  const difficultyMap = new Map<string, { total: number; correct: number; incorrect: number }>()
+
+  questions?.forEach(q => {
+    const userAnswer = userAnswerMap.get(q.id)
+    const isCorrect = userAnswer?.hasCorrect || false
+    const isIncorrect = !isCorrect && (userAnswer?.hasIncorrect || false)
+
+    if (isCorrect) correctQuestions++
+    if (isIncorrect) incorrectQuestions++
+
+    // Chapter stats
+    const chapterCurrent = chapterMap.get(q.chapter) || { total: 0, correct: 0, incorrect: 0 }
+    chapterCurrent.total++
+    if (isCorrect) chapterCurrent.correct++
+    if (isIncorrect) chapterCurrent.incorrect++
+    chapterMap.set(q.chapter, chapterCurrent)
+
+    // Difficulty stats
+    const diffCurrent = difficultyMap.get(q.difficulty) || { total: 0, correct: 0, incorrect: 0 }
+    diffCurrent.total++
+    if (isCorrect) diffCurrent.correct++
+    if (isIncorrect) diffCurrent.incorrect++
+    difficultyMap.set(q.difficulty, diffCurrent)
   })
 
   const byChapter = Array.from(chapterMap.entries())
@@ -82,21 +132,6 @@ export async function getOverallStats(): Promise<{
     }))
     .sort((a, b) => a.chapter.localeCompare(b.chapter))
 
-  // Group by difficulty
-  const difficultyMap = new Map<string, { total: number; correct: number; incorrect: number }>()
-  data.forEach(q => {
-    const current = difficultyMap.get(q.difficulty) || { total: 0, correct: 0, incorrect: 0 }
-    current.total++
-    if (q.stats && q.stats.total_attempts > 0) {
-      if (q.stats.correct_count > 0) {
-        current.correct++
-      } else {
-        current.incorrect++
-      }
-    }
-    difficultyMap.set(q.difficulty, current)
-  })
-
   const byDifficulty = Array.from(difficultyMap.entries())
     .map(([difficulty, data]) => ({
       difficulty,
@@ -108,7 +143,7 @@ export async function getOverallStats(): Promise<{
 
   return {
     totalQuestions,
-    answeredQuestions,
+    answeredQuestions: correctQuestions + incorrectQuestions,
     correctQuestions,
     incorrectQuestions,
     byChapter,
