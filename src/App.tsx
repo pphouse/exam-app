@@ -13,6 +13,7 @@ import AdminDashboard from './pages/admin/Dashboard'
 import AdminUsers from './pages/admin/Users'
 import AdminUserDetail from './pages/admin/UserDetail'
 import AdminQuestions from './pages/admin/Questions'
+import AdminFeedback from './pages/admin/Feedback'
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, isLoading } = useAuth()
@@ -46,6 +47,7 @@ function App() {
         <Route path="users" element={<AdminUsers />} />
         <Route path="users/:userId" element={<AdminUserDetail />} />
         <Route path="questions" element={<AdminQuestions />} />
+        <Route path="feedback" element={<AdminFeedback />} />
       </Route>
 
       {/* User Routes */}

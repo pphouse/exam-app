@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '../hooks/useAuth'
 import { getRandomQuestionByChapter, getAllChapters } from '../services/questions'
 import { createExamSession, submitAnswer } from '../services/exam'
+import FeedbackButton from '../components/FeedbackButton'
 import type { Question, PracticeState } from '../types'
 
 export default function Practice() {
@@ -220,7 +221,10 @@ export default function Practice() {
           </div>
 
           <div className="bg-gray-50 rounded-lg p-4 mb-4 border border-gray-200">
-            <h3 className="font-medium text-gray-900 mb-2">解説</h3>
+            <div className="flex justify-between items-start mb-2">
+              <h3 className="font-medium text-gray-900">解説</h3>
+              <FeedbackButton questionId={question.id} />
+            </div>
             <p className="text-gray-700 text-sm whitespace-pre-wrap">{question.explanation}</p>
             {question.incorrect_explanation && (
               <div className="mt-3 pt-3 border-t border-gray-200">

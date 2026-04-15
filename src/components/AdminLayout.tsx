@@ -26,6 +26,7 @@ export default function AdminLayout() {
     { path: '/admin', label: 'ダッシュボード', exact: true },
     { path: '/admin/users', label: 'ユーザー' },
     { path: '/admin/questions', label: '問題統計' },
+    { path: '/admin/feedback', label: 'フィードバック' },
   ]
 
   const isActive = (path: string, exact?: boolean) => {

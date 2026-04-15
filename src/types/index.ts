@@ -56,3 +56,14 @@ export interface QuestionStats {
   correct_count: number
   accuracy_rate: number | null
 }
+
+export type FeedbackType = 'too_easy' | 'too_hard' | 'wrong_answer' | 'unclear' | 'suggestion'
+
+export interface QuestionFeedback {
+  id: string
+  question_id: string
+  user_id: string
+  feedback_type: FeedbackType
+  comment: string | null
+  created_at: string
+}
