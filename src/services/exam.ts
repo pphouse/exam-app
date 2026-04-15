@@ -27,7 +27,8 @@ export async function submitAnswer(
   sessionId: string,
   questionId: string,
   userAnswer: string,
-  correctAnswer: string
+  correctAnswer: string,
+  timeTakenSeconds?: number
 ): Promise<Answer> {
   const isCorrect = userAnswer === correctAnswer
 
@@ -39,6 +40,7 @@ export async function submitAnswer(
       user_answer: userAnswer,
       is_correct: isCorrect,
       answered_at: new Date().toISOString(),
+      time_taken_seconds: timeTakenSeconds ?? null,
     })
     .select()
     .single()

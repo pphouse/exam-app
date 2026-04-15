@@ -12,6 +12,7 @@ export default function Practice() {
   const [loading, setLoading] = useState(false)
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null)
   const [stats, setStats] = useState({ correct: 0, total: 0 })
+  const [questionStartTime, setQuestionStartTime] = useState<number>(Date.now())
 
   useEffect(() => {
     getAllChapters().then(setChapters).catch(console.error)
@@ -37,6 +38,7 @@ export default function Practice() {
         sessionId: session.id,
       })
       setSelectedAnswer(null)
+      setQuestionStartTime(Date.now())
     } catch (error) {
       console.error('Failed to start practice:', error)
     } finally {
@@ -47,6 +49,7 @@ export default function Practice() {
   const handleAnswer = async (answer: string) => {
     if (!state?.currentQuestion || state.showAnswer) return
 
+    const timeTaken = Math.round((Date.now() - questionStartTime) / 1000)
     setSelectedAnswer(answer)
     setState({ ...state, showAnswer: true })
 
@@ -61,7 +64,8 @@ export default function Practice() {
         state.sessionId,
         state.currentQuestion.id,
         answer,
-        state.currentQuestion.correct_answer
+        state.currentQuestion.correct_answer,
+        timeTaken
       )
     } catch (error) {
       console.error('Failed to submit answer:', error)
@@ -88,6 +92,7 @@ export default function Practice() {
         sessionId: session.id,
       })
       setSelectedAnswer(null)
+      setQuestionStartTime(Date.now())
     } catch (error) {
       console.error('Failed to load next question:', error)
     } finally {

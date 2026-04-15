@@ -15,6 +15,8 @@ export default function Exam() {
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [remainingTime, setRemainingTime] = useState(TIME_LIMIT)
+  const [questionTimes, setQuestionTimes] = useState<Record<string, number>>({})
+  const [questionStartTime, setQuestionStartTime] = useState<number>(Date.now())
 
   useEffect(() => {
     const initExam = async () => {
@@ -72,9 +74,21 @@ export default function Exam() {
     })
   }
 
+  const updateQuestionTime = useCallback(() => {
+    if (!state) return
+    const currentQuestionId = state.questions[state.currentIndex].id
+    const timeSpent = Math.round((Date.now() - questionStartTime) / 1000)
+    setQuestionTimes((prev) => ({
+      ...prev,
+      [currentQuestionId]: (prev[currentQuestionId] || 0) + timeSpent,
+    }))
+    setQuestionStartTime(Date.now())
+  }, [state, questionStartTime])
+
   const handleNext = () => {
     if (!state) return
     if (state.currentIndex < state.questions.length - 1) {
+      updateQuestionTime()
       setState({ ...state, currentIndex: state.currentIndex + 1 })
     }
   }
@@ -82,12 +96,14 @@ export default function Exam() {
   const handlePrev = () => {
     if (!state) return
     if (state.currentIndex > 0) {
+      updateQuestionTime()
       setState({ ...state, currentIndex: state.currentIndex - 1 })
     }
   }
 
   const handleGoTo = (index: number) => {
     if (!state) return
+    updateQuestionTime()
     setState({ ...state, currentIndex: index })
   }
 
@@ -102,12 +118,21 @@ export default function Exam() {
 
     setSubmitting(true)
 
+    // Save current question's time
+    const currentQuestionId = state.questions[state.currentIndex].id
+    const currentTimeSpent = Math.round((Date.now() - questionStartTime) / 1000)
+    const finalQuestionTimes = {
+      ...questionTimes,
+      [currentQuestionId]: (questionTimes[currentQuestionId] || 0) + currentTimeSpent,
+    }
+
     try {
       let correctCount = 0
       for (const question of state.questions) {
         const userAnswer = state.answers[question.id]
         if (userAnswer) {
-          await submitAnswer(state.sessionId, question.id, userAnswer, question.correct_answer)
+          const timeTaken = finalQuestionTimes[question.id] || 0
+          await submitAnswer(state.sessionId, question.id, userAnswer, question.correct_answer, timeTaken)
           if (userAnswer === question.correct_answer) correctCount++
         }
       }
@@ -121,7 +146,7 @@ export default function Exam() {
       alert('試験の提出に失敗しました')
       setSubmitting(false)
     }
-  }, [state, submitting, navigate])
+  }, [state, submitting, navigate, questionStartTime, questionTimes])
 
   if (loading) {
     return (

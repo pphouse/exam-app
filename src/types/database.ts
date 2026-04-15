@@ -38,6 +38,7 @@ export interface Answer {
   is_correct: boolean
   answered_at: string
   created_at: string
+  time_taken_seconds: number | null
 }
 
 export interface QuestionStats {
