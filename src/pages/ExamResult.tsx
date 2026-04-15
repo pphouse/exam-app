@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { getSessionAnswers } from '../services/exam'
-import FeedbackButton from '../components/FeedbackButton'
+import InlineFeedback from '../components/InlineFeedback'
 import type { Question, Answer, ExamSession } from '../types'
 
 interface ResultData {
@@ -227,13 +227,11 @@ export default function ExamResult() {
                 </div>
 
                 <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                  <div className="flex justify-between items-start mb-2">
-                    <h4 className="font-medium text-gray-900">解説</h4>
-                    <FeedbackButton questionId={question.id} />
-                  </div>
+                  <h4 className="font-medium text-gray-900 mb-2">解説</h4>
                   <p className="text-gray-700 text-sm whitespace-pre-wrap">
                     {question.explanation}
                   </p>
+                  <InlineFeedback questionId={question.id} />
                 </div>
               </div>
             )
