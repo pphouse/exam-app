@@ -6,12 +6,12 @@ interface InlineFeedbackProps {
   questionId: string
 }
 
-const feedbackOptions: { type: FeedbackType; label: string; icon: string }[] = [
-  { type: 'wrong_answer', label: '正解が違う', icon: '❌' },
-  { type: 'unclear', label: '不明瞭', icon: '❓' },
-  { type: 'too_easy', label: '簡単', icon: '😊' },
-  { type: 'too_hard', label: '難しい', icon: '😰' },
-  { type: 'suggestion', label: '提案', icon: '💡' },
+const feedbackOptions: { type: FeedbackType; label: string }[] = [
+  { type: 'wrong_answer', label: '正解が間違っている' },
+  { type: 'unclear', label: '問題文が不明瞭' },
+  { type: 'too_easy', label: '簡単すぎる' },
+  { type: 'too_hard', label: '難しすぎる' },
+  { type: 'suggestion', label: 'その他の提案' },
 ]
 
 export default function InlineFeedback({ questionId }: InlineFeedbackProps) {
@@ -70,7 +70,6 @@ export default function InlineFeedback({ questionId }: InlineFeedbackProps) {
                 : 'border-gray-300 text-gray-600 hover:border-gray-400 hover:bg-gray-50'
             }`}
           >
-            <span className="mr-1">{option.icon}</span>
             {option.label}
           </button>
         ))}
