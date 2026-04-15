@@ -29,40 +29,45 @@ export async function getQuestionsWithStats(): Promise<QuestionWithStats[]> {
 
 export async function getOverallStats(): Promise<{
   totalQuestions: number
-  totalAttempts: number
-  totalCorrect: number
-  averageAccuracy: number
+  answeredQuestions: number
+  correctQuestions: number
+  incorrectQuestions: number
   byChapter: Array<{
     chapter: string
-    questionCount: number
-    attempts: number
+    total: number
     correct: number
-    avgAccuracy: number
+    incorrect: number
+    unanswered: number
   }>
   byDifficulty: Array<{
     difficulty: string
-    questionCount: number
-    attempts: number
+    total: number
     correct: number
-    avgAccuracy: number
+    incorrect: number
+    unanswered: number
   }>
 }> {
   const data = await getQuestionsWithStats()
 
   const totalQuestions = data.length
-  const questionsWithStats = data.filter(q => q.stats)
-  const totalAttempts = questionsWithStats.reduce((sum, q) => sum + (q.stats?.total_attempts || 0), 0)
-  const totalCorrect = questionsWithStats.reduce((sum, q) => sum + (q.stats?.correct_count || 0), 0)
-  const averageAccuracy = totalAttempts > 0 ? (totalCorrect / totalAttempts) * 100 : 0
+  // 回答済み問題数（1回でも回答された問題）
+  const answeredQuestions = data.filter(q => q.stats && q.stats.total_attempts > 0).length
+  // 正解率50%以上を「正解済み」とみなす（または最後の回答が正解など、要件次第）
+  // ここでは「1回でも正解した問題」を正解済みとする
+  const correctQuestions = data.filter(q => q.stats && q.stats.correct_count > 0).length
+  const incorrectQuestions = answeredQuestions - correctQuestions
 
   // Group by chapter
-  const chapterMap = new Map<string, { questionCount: number; attempts: number; correct: number }>()
+  const chapterMap = new Map<string, { total: number; correct: number; incorrect: number }>()
   data.forEach(q => {
-    const current = chapterMap.get(q.chapter) || { questionCount: 0, attempts: 0, correct: 0 }
-    current.questionCount++
-    if (q.stats) {
-      current.attempts += q.stats.total_attempts || 0
-      current.correct += q.stats.correct_count || 0
+    const current = chapterMap.get(q.chapter) || { total: 0, correct: 0, incorrect: 0 }
+    current.total++
+    if (q.stats && q.stats.total_attempts > 0) {
+      if (q.stats.correct_count > 0) {
+        current.correct++
+      } else {
+        current.incorrect++
+      }
     }
     chapterMap.set(q.chapter, current)
   })
@@ -70,21 +75,24 @@ export async function getOverallStats(): Promise<{
   const byChapter = Array.from(chapterMap.entries())
     .map(([chapter, data]) => ({
       chapter,
-      questionCount: data.questionCount,
-      attempts: data.attempts,
+      total: data.total,
       correct: data.correct,
-      avgAccuracy: data.attempts > 0 ? (data.correct / data.attempts) * 100 : 0,
+      incorrect: data.incorrect,
+      unanswered: data.total - data.correct - data.incorrect,
     }))
     .sort((a, b) => a.chapter.localeCompare(b.chapter))
 
   // Group by difficulty
-  const difficultyMap = new Map<string, { questionCount: number; attempts: number; correct: number }>()
+  const difficultyMap = new Map<string, { total: number; correct: number; incorrect: number }>()
   data.forEach(q => {
-    const current = difficultyMap.get(q.difficulty) || { questionCount: 0, attempts: 0, correct: 0 }
-    current.questionCount++
-    if (q.stats) {
-      current.attempts += q.stats.total_attempts || 0
-      current.correct += q.stats.correct_count || 0
+    const current = difficultyMap.get(q.difficulty) || { total: 0, correct: 0, incorrect: 0 }
+    current.total++
+    if (q.stats && q.stats.total_attempts > 0) {
+      if (q.stats.correct_count > 0) {
+        current.correct++
+      } else {
+        current.incorrect++
+      }
     }
     difficultyMap.set(q.difficulty, current)
   })
@@ -92,17 +100,17 @@ export async function getOverallStats(): Promise<{
   const byDifficulty = Array.from(difficultyMap.entries())
     .map(([difficulty, data]) => ({
       difficulty,
-      questionCount: data.questionCount,
-      attempts: data.attempts,
+      total: data.total,
       correct: data.correct,
-      avgAccuracy: data.attempts > 0 ? (data.correct / data.attempts) * 100 : 0,
+      incorrect: data.incorrect,
+      unanswered: data.total - data.correct - data.incorrect,
     }))
 
   return {
     totalQuestions,
-    totalAttempts,
-    totalCorrect,
-    averageAccuracy,
+    answeredQuestions,
+    correctQuestions,
+    incorrectQuestions,
     byChapter,
     byDifficulty,
   }

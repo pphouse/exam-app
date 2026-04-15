@@ -3,11 +3,11 @@ import { getOverallStats } from '../services/stats'
 
 interface OverallStats {
   totalQuestions: number
-  totalAttempts: number
-  totalCorrect: number
-  averageAccuracy: number
-  byChapter: Array<{ chapter: string; questionCount: number; attempts: number; correct: number; avgAccuracy: number }>
-  byDifficulty: Array<{ difficulty: string; questionCount: number; attempts: number; correct: number; avgAccuracy: number }>
+  answeredQuestions: number
+  correctQuestions: number
+  incorrectQuestions: number
+  byChapter: Array<{ chapter: string; total: number; correct: number; incorrect: number; unanswered: number }>
+  byDifficulty: Array<{ difficulty: string; total: number; correct: number; incorrect: number; unanswered: number }>
 }
 
 export default function Stats() {
@@ -45,6 +45,9 @@ export default function Stats() {
   }
 
   const getDifficultyOrder = (d: string) => ({ '易': 1, '標準': 2, '難': 3 }[d] || 4)
+  const accuracy = stats.answeredQuestions > 0
+    ? Math.round((stats.correctQuestions / stats.answeredQuestions) * 100)
+    : 0
 
   return (
     <div className="max-w-3xl mx-auto">
@@ -54,19 +57,50 @@ export default function Stats() {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <div className="bg-white rounded-xl border border-gray-200 p-4 text-center">
           <div className="text-2xl font-bold text-gray-900">{stats.totalQuestions}</div>
-          <div className="text-sm text-gray-500">問題数</div>
+          <div className="text-sm text-gray-500">全問題数</div>
         </div>
         <div className="bg-white rounded-xl border border-gray-200 p-4 text-center">
-          <div className="text-2xl font-bold text-gray-900">{stats.totalAttempts}</div>
-          <div className="text-sm text-gray-500">総回答数</div>
+          <div className="text-2xl font-bold text-green-600">{stats.correctQuestions}</div>
+          <div className="text-sm text-gray-500">正解済み</div>
         </div>
         <div className="bg-white rounded-xl border border-gray-200 p-4 text-center">
-          <div className="text-2xl font-bold text-gray-900">{stats.totalCorrect}/{stats.totalAttempts}</div>
-          <div className="text-sm text-gray-500">正解数</div>
+          <div className="text-2xl font-bold text-red-600">{stats.incorrectQuestions}</div>
+          <div className="text-sm text-gray-500">不正解</div>
         </div>
         <div className="bg-white rounded-xl border border-gray-200 p-4 text-center">
-          <div className="text-2xl font-bold text-gray-900">{stats.averageAccuracy.toFixed(1)}%</div>
+          <div className="text-2xl font-bold text-gray-900">{accuracy}%</div>
           <div className="text-sm text-gray-500">正解率</div>
+        </div>
+      </div>
+
+      {/* Overall Progress Bar */}
+      <div className="bg-white rounded-xl border border-gray-200 p-5 mb-6">
+        <div className="flex justify-between text-sm mb-2">
+          <span className="text-gray-700">全体進捗</span>
+          <span className="text-gray-900">
+            {stats.correctQuestions}/{stats.totalQuestions}
+          </span>
+        </div>
+        <div className="w-full bg-gray-200 rounded-full h-3 flex overflow-hidden">
+          <div
+            className="bg-green-500 h-3"
+            style={{ width: `${(stats.correctQuestions / stats.totalQuestions) * 100}%` }}
+          ></div>
+          <div
+            className="bg-red-400 h-3"
+            style={{ width: `${(stats.incorrectQuestions / stats.totalQuestions) * 100}%` }}
+          ></div>
+        </div>
+        <div className="flex gap-4 mt-2 text-xs text-gray-500">
+          <span className="flex items-center gap-1">
+            <span className="w-3 h-3 bg-green-500 rounded"></span> 正解済み
+          </span>
+          <span className="flex items-center gap-1">
+            <span className="w-3 h-3 bg-red-400 rounded"></span> 不正解
+          </span>
+          <span className="flex items-center gap-1">
+            <span className="w-3 h-3 bg-gray-200 rounded"></span> 未回答
+          </span>
         </div>
       </div>
 
@@ -79,13 +113,17 @@ export default function Stats() {
               <div className="flex justify-between text-sm mb-1">
                 <span className="text-gray-700">{chapter.chapter}</span>
                 <span className="text-gray-900">
-                  {chapter.correct}/{chapter.attempts} ({chapter.avgAccuracy.toFixed(1)}%)
+                  {chapter.correct}/{chapter.total}
                 </span>
               </div>
-              <div className="w-full bg-gray-100 rounded-full h-2">
+              <div className="w-full bg-gray-200 rounded-full h-2 flex overflow-hidden">
                 <div
-                  className={`h-2 rounded-full ${chapter.avgAccuracy >= 70 ? 'bg-gray-700' : 'bg-gray-400'}`}
-                  style={{ width: `${Math.min(100, chapter.avgAccuracy)}%` }}
+                  className="bg-green-500 h-2"
+                  style={{ width: `${(chapter.correct / chapter.total) * 100}%` }}
+                ></div>
+                <div
+                  className="bg-red-400 h-2"
+                  style={{ width: `${(chapter.incorrect / chapter.total) * 100}%` }}
                 ></div>
               </div>
             </div>
@@ -96,21 +134,34 @@ export default function Stats() {
       {/* By difficulty */}
       <div className="bg-white rounded-xl border border-gray-200 p-5 mb-6">
         <h2 className="text-sm font-medium text-gray-900 mb-4">難易度別統計</h2>
-        <div className="grid grid-cols-3 gap-3">
+        <div className="space-y-4">
           {stats.byDifficulty
             .sort((a, b) => getDifficultyOrder(a.difficulty) - getDifficultyOrder(b.difficulty))
             .map((diff) => (
-              <div key={diff.difficulty} className="bg-gray-50 rounded-lg p-4 text-center">
-                <div className="text-sm font-medium text-gray-700">{diff.difficulty}</div>
-                <div className="text-xl font-bold text-gray-900 my-1">{diff.avgAccuracy.toFixed(1)}%</div>
-                <div className="text-xs text-gray-500">{diff.correct}/{diff.attempts}</div>
+              <div key={diff.difficulty}>
+                <div className="flex justify-between text-sm mb-1">
+                  <span className="text-gray-700">{diff.difficulty}</span>
+                  <span className="text-gray-900">
+                    {diff.correct}/{diff.total}
+                  </span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2 flex overflow-hidden">
+                  <div
+                    className="bg-green-500 h-2"
+                    style={{ width: `${(diff.correct / diff.total) * 100}%` }}
+                  ></div>
+                  <div
+                    className="bg-red-400 h-2"
+                    style={{ width: `${(diff.incorrect / diff.total) * 100}%` }}
+                  ></div>
+                </div>
               </div>
             ))}
         </div>
       </div>
 
       <div className="bg-gray-50 rounded-lg p-4 text-sm text-gray-600">
-        この統計は全ユーザーの回答データに基づいています。
+        この統計は全ユーザーの回答データに基づいています。1回でも正解した問題を「正解済み」としています。
       </div>
     </div>
   )
