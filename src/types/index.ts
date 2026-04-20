@@ -57,7 +57,7 @@ export interface QuestionStats {
   accuracy_rate: number | null
 }
 
-export type FeedbackType = 'too_easy' | 'too_hard' | 'wrong_answer' | 'unclear' | 'suggestion'
+export type FeedbackType = 'just_right' | 'too_easy' | 'too_hard' | 'wrong_answer' | 'unclear' | 'suggestion'
 
 export interface QuestionFeedback {
   id: string

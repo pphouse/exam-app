@@ -46,14 +46,18 @@ export default function Practice() {
     }
   }
 
-  const handleAnswer = async (answer: string) => {
+  const handleSelectAnswer = (answer: string) => {
     if (!state?.currentQuestion || state.showAnswer) return
+    setSelectedAnswer(answer)
+  }
+
+  const handleConfirmAnswer = async () => {
+    if (!state?.currentQuestion || state.showAnswer || !selectedAnswer) return
 
     const timeTaken = Math.round((Date.now() - questionStartTime) / 1000)
-    setSelectedAnswer(answer)
     setState({ ...state, showAnswer: true })
 
-    const isCorrect = answer === state.currentQuestion.correct_answer
+    const isCorrect = selectedAnswer === state.currentQuestion.correct_answer
     setStats((prev) => ({
       correct: prev.correct + (isCorrect ? 1 : 0),
       total: prev.total + 1,
@@ -63,7 +67,7 @@ export default function Practice() {
       await submitAnswer(
         state.sessionId,
         state.currentQuestion.id,
-        answer,
+        selectedAnswer,
         state.currentQuestion.correct_answer,
         timeTaken
       )
@@ -201,7 +205,7 @@ export default function Practice() {
             return (
               <button
                 key={option}
-                onClick={() => handleAnswer(option)}
+                onClick={() => handleSelectAnswer(option)}
                 disabled={state.showAnswer}
                 className={`w-full text-left p-3 rounded-lg border ${borderClass} ${bgClass} transition-colors disabled:cursor-default`}
               >
@@ -214,6 +218,16 @@ export default function Practice() {
             )
           })}
         </div>
+
+        {/* Confirm button */}
+        {!state.showAnswer && selectedAnswer && (
+          <button
+            onClick={handleConfirmAnswer}
+            className="w-full mt-4 bg-gray-900 text-white py-3 rounded-lg font-medium hover:bg-gray-800 transition-colors"
+          >
+            回答する
+          </button>
+        )}
       </div>
 
       {/* Result & Explanation */}

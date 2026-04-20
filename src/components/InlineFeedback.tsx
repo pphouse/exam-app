@@ -7,10 +7,11 @@ interface InlineFeedbackProps {
 }
 
 const feedbackOptions: { type: FeedbackType; label: string }[] = [
-  { type: 'wrong_answer', label: '正解が間違っている' },
-  { type: 'unclear', label: '問題文が不明瞭' },
+  { type: 'just_right', label: 'ちょうどいい' },
   { type: 'too_easy', label: '簡単すぎる' },
   { type: 'too_hard', label: '難しすぎる' },
+  { type: 'wrong_answer', label: '正解が間違っている' },
+  { type: 'unclear', label: '問題文が不明瞭' },
   { type: 'suggestion', label: 'その他の提案' },
 ]
 

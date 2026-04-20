@@ -3,6 +3,7 @@ import { getAllFeedback } from '../../services/feedback'
 import type { QuestionFeedback, FeedbackType } from '../../types'
 
 const feedbackTypeLabels: Record<FeedbackType, string> = {
+  just_right: 'ちょうどいい',
   wrong_answer: '正解が間違っている',
   unclear: '問題文が不明瞭',
   too_easy: '簡単すぎる',
@@ -11,6 +12,7 @@ const feedbackTypeLabels: Record<FeedbackType, string> = {
 }
 
 const feedbackTypeColors: Record<FeedbackType, string> = {
+  just_right: 'bg-green-100 text-green-700',
   wrong_answer: 'bg-red-100 text-red-700',
   unclear: 'bg-yellow-100 text-yellow-700',
   too_easy: 'bg-blue-100 text-blue-700',
@@ -67,7 +69,7 @@ export default function AdminFeedback() {
       </div>
 
       {/* Summary */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
+      <div className="grid grid-cols-2 md:grid-cols-6 gap-3 mb-6">
         {(Object.keys(feedbackTypeLabels) as FeedbackType[]).map(type => (
           <button
             key={type}
