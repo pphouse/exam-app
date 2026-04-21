@@ -1,31 +1,47 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../hooks/useAuth'
-import { getRandomQuestionByChapter, getAllChapters } from '../services/questions'
+import { getRandomQuestionByChapter, getAllChapters, getUnansweredQuestionByChapter, getUnansweredCountByChapter } from '../services/questions'
 import { createExamSession, submitAnswer } from '../services/exam'
 import InlineFeedback from '../components/InlineFeedback'
 import type { Question, PracticeState } from '../types'
 
+interface ExtendedPracticeState extends PracticeState {
+  unansweredOnly: boolean
+}
+
 export default function Practice() {
   const { user } = useAuth()
   const [chapters, setChapters] = useState<string[]>([])
-  const [state, setState] = useState<PracticeState | null>(null)
+  const [chapterCounts, setChapterCounts] = useState<Record<string, { total: number; unanswered: number }>>({})
+  const [state, setState] = useState<ExtendedPracticeState | null>(null)
   const [loading, setLoading] = useState(false)
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null)
   const [stats, setStats] = useState({ correct: 0, total: 0 })
   const [questionStartTime, setQuestionStartTime] = useState<number>(Date.now())
+  const [unansweredOnly, setUnansweredOnly] = useState(false)
 
   useEffect(() => {
     getAllChapters().then(setChapters).catch(console.error)
   }, [])
 
-  const startPractice = async (chapter: string | null) => {
+  useEffect(() => {
+    if (user) {
+      getUnansweredCountByChapter(user.id).then(setChapterCounts).catch(console.error)
+    }
+  }, [user])
+
+  const startPractice = async (chapter: string | null, onlyUnanswered: boolean = false) => {
     if (!user) return
     setLoading(true)
 
     try {
-      const question = await getRandomQuestionByChapter(chapter)
+      const question = onlyUnanswered
+        ? await getUnansweredQuestionByChapter(user.id, chapter)
+        : await getRandomQuestionByChapter(chapter)
+
       if (!question) {
-        alert('問題が見つかりませんでした')
+        alert(onlyUnanswered ? '未回答の問題がありません' : '問題が見つかりませんでした')
+        setLoading(false)
         return
       }
 
@@ -36,6 +52,7 @@ export default function Practice() {
         currentQuestion: question,
         showAnswer: false,
         sessionId: session.id,
+        unansweredOnly: onlyUnanswered,
       })
       setSelectedAnswer(null)
       setQuestionStartTime(Date.now())
@@ -81,9 +98,13 @@ export default function Practice() {
     setLoading(true)
 
     try {
-      const question = await getRandomQuestionByChapter(state.chapter)
+      const question = state.unansweredOnly
+        ? await getUnansweredQuestionByChapter(user.id, state.chapter)
+        : await getRandomQuestionByChapter(state.chapter)
+
       if (!question) {
-        alert('問題が見つかりませんでした')
+        alert(state.unansweredOnly ? '未回答の問題がすべて完了しました！' : '問題が見つかりませんでした')
+        handleEndPractice()
         return
       }
 
@@ -110,35 +131,84 @@ export default function Practice() {
     setStats({ correct: 0, total: 0 })
   }
 
+  // Calculate totals
+  const totalQuestions = Object.values(chapterCounts).reduce((sum, c) => sum + c.total, 0)
+  const totalUnanswered = Object.values(chapterCounts).reduce((sum, c) => sum + c.unanswered, 0)
+
   // Chapter selection screen
   if (!state) {
     return (
       <div className="max-w-2xl mx-auto">
         <h1 className="text-xl font-bold text-gray-900 mb-6">練習モード</h1>
 
+        {/* Mode toggle */}
+        <div className="bg-white rounded-xl border border-gray-200 p-4 mb-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <span className="font-medium text-gray-900">未回答のみ出題</span>
+              <span className="text-sm text-gray-500 ml-2">
+                (残り {totalUnanswered}/{totalQuestions} 問)
+              </span>
+            </div>
+            <button
+              onClick={() => setUnansweredOnly(!unansweredOnly)}
+              className={`relative w-12 h-6 rounded-full transition-colors ${
+                unansweredOnly ? 'bg-gray-900' : 'bg-gray-300'
+              }`}
+            >
+              <span
+                className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-transform ${
+                  unansweredOnly ? 'left-7' : 'left-1'
+                }`}
+              />
+            </button>
+          </div>
+        </div>
+
         <div className="bg-white rounded-xl border border-gray-200 p-5">
           <h2 className="text-sm font-medium text-gray-900 mb-4">章を選択</h2>
 
           <div className="space-y-2">
             <button
-              onClick={() => startPractice(null)}
-              disabled={loading}
+              onClick={() => startPractice(null, unansweredOnly)}
+              disabled={loading || (unansweredOnly && totalUnanswered === 0)}
               className="w-full p-4 text-left rounded-lg border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-colors disabled:opacity-60"
             >
-              <span className="font-medium text-gray-900">全ての章</span>
-              <span className="text-sm text-gray-500 ml-2">ランダム出題</span>
+              <div className="flex items-center justify-between">
+                <div>
+                  <span className="font-medium text-gray-900">全ての章</span>
+                  <span className="text-sm text-gray-500 ml-2">ランダム出題</span>
+                </div>
+                {unansweredOnly && (
+                  <span className="text-sm text-gray-500">
+                    {totalUnanswered} 問
+                  </span>
+                )}
+              </div>
             </button>
 
-            {chapters.map((chapter) => (
-              <button
-                key={chapter}
-                onClick={() => startPractice(chapter)}
-                disabled={loading}
-                className="w-full p-4 text-left rounded-lg border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-colors disabled:opacity-60"
-              >
-                <span className="font-medium text-gray-900">{chapter}</span>
-              </button>
-            ))}
+            {chapters.map((chapter) => {
+              const counts = chapterCounts[chapter] || { total: 0, unanswered: 0 }
+              const isDisabled = loading || (unansweredOnly && counts.unanswered === 0)
+
+              return (
+                <button
+                  key={chapter}
+                  onClick={() => startPractice(chapter, unansweredOnly)}
+                  disabled={isDisabled}
+                  className="w-full p-4 text-left rounded-lg border border-gray-200 hover:border-gray-300 hover:bg-gray-50 transition-colors disabled:opacity-60"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium text-gray-900">{chapter}</span>
+                    <span className="text-sm text-gray-500">
+                      {unansweredOnly
+                        ? `${counts.unanswered} 問`
+                        : `${counts.total} 問`}
+                    </span>
+                  </div>
+                </button>
+              )
+            })}
           </div>
         </div>
       </div>
@@ -156,7 +226,12 @@ export default function Practice() {
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h1 className="text-lg font-bold text-gray-900">練習モード</h1>
+          <h1 className="text-lg font-bold text-gray-900">
+            練習モード
+            {state.unansweredOnly && (
+              <span className="ml-2 text-sm font-normal text-gray-500">（未回答のみ）</span>
+            )}
+          </h1>
           <p className="text-sm text-gray-500">{state.chapter || '全ての章'}</p>
         </div>
         <div className="text-right">

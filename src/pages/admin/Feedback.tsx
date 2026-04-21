@@ -22,6 +22,7 @@ const feedbackTypeColors: Record<FeedbackType, string> = {
 
 type FeedbackWithQuestion = QuestionFeedback & {
   question: { question_id: string; question_text: string }
+  profile: { email: string; full_name: string | null } | null
 }
 
 export default function AdminFeedback() {
@@ -94,9 +95,14 @@ export default function AdminFeedback() {
             className="bg-white rounded-xl border border-gray-200 p-4"
           >
             <div className="flex items-start justify-between gap-4 mb-2">
-              <span className={`px-2 py-1 text-xs font-medium rounded ${feedbackTypeColors[item.feedback_type]}`}>
-                {feedbackTypeLabels[item.feedback_type]}
-              </span>
+              <div className="flex items-center gap-2">
+                <span className={`px-2 py-1 text-xs font-medium rounded ${feedbackTypeColors[item.feedback_type]}`}>
+                  {feedbackTypeLabels[item.feedback_type]}
+                </span>
+                <span className="text-xs text-gray-500">
+                  {item.profile?.full_name || item.profile?.email || '不明'}
+                </span>
+              </div>
               <span className="text-xs text-gray-400">
                 {new Date(item.created_at).toLocaleDateString('ja-JP', {
                   year: 'numeric',

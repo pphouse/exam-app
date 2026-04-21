@@ -16,24 +16,20 @@ const feedbackOptions: { type: FeedbackType; label: string }[] = [
 ]
 
 export default function InlineFeedback({ questionId }: InlineFeedbackProps) {
-  const [selectedType, setSelectedType] = useState<FeedbackType | null>(null)
+  const [showSuggestionInput, setShowSuggestionInput] = useState(false)
   const [comment, setComment] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
 
-  const handleSelect = (type: FeedbackType) => {
-    if (selectedType === type) {
-      setSelectedType(null)
-    } else {
-      setSelectedType(type)
+  const handleSelect = async (type: FeedbackType) => {
+    if (type === 'suggestion') {
+      setShowSuggestionInput(true)
+      return
     }
-  }
 
-  const handleSubmit = async () => {
-    if (!selectedType) return
-
+    // その他のフィードバックは即座に送信
     setSubmitting(true)
-    const success = await submitFeedback(questionId, selectedType, comment)
+    const success = await submitFeedback(questionId, type)
     setSubmitting(false)
 
     if (success) {
@@ -41,7 +37,17 @@ export default function InlineFeedback({ questionId }: InlineFeedbackProps) {
     }
   }
 
-  const needsComment = selectedType === 'wrong_answer' || selectedType === 'suggestion'
+  const handleSubmitSuggestion = async () => {
+    if (!comment.trim()) return
+
+    setSubmitting(true)
+    const success = await submitFeedback(questionId, 'suggestion', comment)
+    setSubmitting(false)
+
+    if (success) {
+      setSubmitted(true)
+    }
+  }
 
   if (submitted) {
     return (
@@ -60,44 +66,40 @@ export default function InlineFeedback({ questionId }: InlineFeedbackProps) {
         <span className="text-xs text-gray-500">この問題について:</span>
       </div>
 
-      <div className="flex flex-wrap gap-2">
-        {feedbackOptions.map((option) => (
-          <button
-            key={option.type}
-            onClick={() => handleSelect(option.type)}
-            className={`px-3 py-1.5 text-xs rounded-full border transition-all ${
-              selectedType === option.type
-                ? 'border-gray-900 bg-gray-900 text-white'
-                : 'border-gray-300 text-gray-600 hover:border-gray-400 hover:bg-gray-50'
-            }`}
-          >
-            {option.label}
-          </button>
-        ))}
-      </div>
-
-      {selectedType && (
-        <div className="mt-3 space-y-2">
-          {needsComment && (
-            <textarea
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              placeholder={selectedType === 'wrong_answer' ? '正しい答えを教えてください' : 'ご提案の内容'}
-              className="w-full text-sm border border-gray-200 rounded-lg p-2 resize-none focus:outline-none focus:border-gray-400"
-              rows={2}
-            />
-          )}
+      {!showSuggestionInput ? (
+        <div className="flex flex-wrap gap-2">
+          {feedbackOptions.map((option) => (
+            <button
+              key={option.type}
+              onClick={() => handleSelect(option.type)}
+              disabled={submitting}
+              className="px-3 py-1.5 text-xs rounded-full border border-gray-300 text-gray-600 hover:border-gray-400 hover:bg-gray-50 transition-all disabled:opacity-50"
+            >
+              {option.label}
+            </button>
+          ))}
+        </div>
+      ) : (
+        <div className="space-y-2">
+          <textarea
+            value={comment}
+            onChange={(e) => setComment(e.target.value)}
+            placeholder="ご提案の内容"
+            className="w-full text-sm border border-gray-200 rounded-lg p-2 resize-none focus:outline-none focus:border-gray-400"
+            rows={2}
+            autoFocus
+          />
           <div className="flex items-center gap-2">
             <button
-              onClick={handleSubmit}
-              disabled={submitting || (needsComment && !comment.trim())}
+              onClick={handleSubmitSuggestion}
+              disabled={submitting || !comment.trim()}
               className="px-4 py-1.5 text-sm bg-gray-900 text-white rounded-lg disabled:opacity-50 hover:bg-gray-800 transition-colors"
             >
               {submitting ? '送信中...' : '送信'}
             </button>
             <button
               onClick={() => {
-                setSelectedType(null)
+                setShowSuggestionInput(false)
                 setComment('')
               }}
               className="px-3 py-1.5 text-sm text-gray-500 hover:text-gray-700"

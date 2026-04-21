@@ -41,12 +41,16 @@ export async function getFeedbackForQuestion(questionId: string): Promise<Questi
   return data || []
 }
 
-export async function getAllFeedback(): Promise<(QuestionFeedback & { question: { question_id: string; question_text: string } })[]> {
+export async function getAllFeedback(): Promise<(QuestionFeedback & {
+  question: { question_id: string; question_text: string }
+  profile: { email: string; full_name: string | null } | null
+})[]> {
   const { data, error } = await supabase
     .from('question_feedback')
     .select(`
       *,
-      question:questions(question_id, question_text)
+      question:questions(question_id, question_text),
+      profile:profiles(email, full_name)
     `)
     .order('created_at', { ascending: false })
 

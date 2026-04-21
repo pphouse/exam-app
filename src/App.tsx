@@ -13,6 +13,7 @@ import AdminDashboard from './pages/admin/Dashboard'
 import AdminUsers from './pages/admin/Users'
 import AdminUserDetail from './pages/admin/UserDetail'
 import AdminQuestions from './pages/admin/Questions'
+import AdminQuestionImport from './pages/admin/QuestionImport'
 import AdminFeedback from './pages/admin/Feedback'
 
 function PrivateRoute({ children }: { children: React.ReactNode }) {
@@ -47,6 +48,7 @@ function App() {
         <Route path="users" element={<AdminUsers />} />
         <Route path="users/:userId" element={<AdminUserDetail />} />
         <Route path="questions" element={<AdminQuestions />} />
+        <Route path="questions/import" element={<AdminQuestionImport />} />
         <Route path="feedback" element={<AdminFeedback />} />
       </Route>
 

@@ -25,7 +25,8 @@ export default function AdminLayout() {
   const navItems = [
     { path: '/admin', label: 'ダッシュボード', exact: true },
     { path: '/admin/users', label: 'ユーザー' },
-    { path: '/admin/questions', label: '問題統計' },
+    { path: '/admin/questions', label: '問題統計', exact: true },
+    { path: '/admin/questions/import', label: '問題管理' },
     { path: '/admin/feedback', label: 'フィードバック' },
   ]
 
