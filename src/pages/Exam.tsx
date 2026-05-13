@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { getRandomQuestions } from '../services/questions'
 import { createExamSession, submitAnswer, finishExamSession } from '../services/exam'
+import InlineFeedback from '../components/InlineFeedback'
 import type { Question, ExamState } from '../types'
 
 const EXAM_QUESTIONS = 60
@@ -14,9 +15,11 @@ export default function Exam() {
   const [state, setState] = useState<ExamState | null>(null)
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
+  const [confirming, setConfirming] = useState(false)
   const [remainingTime, setRemainingTime] = useState(TIME_LIMIT)
   const [questionTimes, setQuestionTimes] = useState<Record<string, number>>({})
   const [questionStartTime, setQuestionStartTime] = useState<number>(Date.now())
+  const [confirmedAnswers, setConfirmedAnswers] = useState<Record<string, string>>({})
 
   useEffect(() => {
     const initExam = async () => {
@@ -64,14 +67,37 @@ export default function Exam() {
 
   const handleAnswer = (answer: string) => {
     if (!state) return
+    const questionId = state.questions[state.currentIndex].id
+    if (confirmedAnswers[questionId]) return // 確定済みは変更不可
 
     setState({
       ...state,
       answers: {
         ...state.answers,
-        [state.questions[state.currentIndex].id]: answer,
+        [questionId]: answer,
       },
     })
+  }
+
+  const handleConfirmAnswer = async () => {
+    if (!state || confirming) return
+    const question = state.questions[state.currentIndex]
+    const answer = state.answers[question.id]
+    if (!answer || confirmedAnswers[question.id]) return
+
+    setConfirming(true)
+    const timeTaken = Math.round((Date.now() - questionStartTime) / 1000)
+    const totalTime = (questionTimes[question.id] || 0) + timeTaken
+
+    try {
+      await submitAnswer(state.sessionId, question.id, answer, question.correct_answer, totalTime)
+      setConfirmedAnswers((prev) => ({ ...prev, [question.id]: answer }))
+      setQuestionTimes((prev) => ({ ...prev, [question.id]: totalTime }))
+    } catch (error) {
+      console.error('Failed to submit answer:', error)
+    } finally {
+      setConfirming(false)
+    }
   }
 
   const updateQuestionTime = useCallback(() => {
@@ -110,31 +136,19 @@ export default function Exam() {
   const handleFinish = useCallback(async () => {
     if (!state || submitting) return
 
-    const unanswered = state.questions.filter((q) => !state.answers[q.id]).length
-    if (unanswered > 0) {
-      const confirm = window.confirm(`まだ${unanswered}問が未回答です。終了しますか？`)
+    const unconfirmed = state.questions.filter((q) => !confirmedAnswers[q.id]).length
+    if (unconfirmed > 0) {
+      const confirm = window.confirm(`まだ${unconfirmed}問が回答未確定です。終了しますか？`)
       if (!confirm) return
     }
 
     setSubmitting(true)
 
-    // Save current question's time
-    const currentQuestionId = state.questions[state.currentIndex].id
-    const currentTimeSpent = Math.round((Date.now() - questionStartTime) / 1000)
-    const finalQuestionTimes = {
-      ...questionTimes,
-      [currentQuestionId]: (questionTimes[currentQuestionId] || 0) + currentTimeSpent,
-    }
-
     try {
       let correctCount = 0
       for (const question of state.questions) {
-        const userAnswer = state.answers[question.id]
-        if (userAnswer) {
-          const timeTaken = finalQuestionTimes[question.id] || 0
-          await submitAnswer(state.sessionId, question.id, userAnswer, question.correct_answer, timeTaken)
-          if (userAnswer === question.correct_answer) correctCount++
-        }
+        const userAnswer = confirmedAnswers[question.id]
+        if (userAnswer && userAnswer === question.correct_answer) correctCount++
       }
 
       const score = Math.round((correctCount / state.questions.length) * 100)
@@ -146,7 +160,7 @@ export default function Exam() {
       alert('試験の提出に失敗しました')
       setSubmitting(false)
     }
-  }, [state, submitting, navigate, questionStartTime, questionTimes])
+  }, [state, submitting, navigate, confirmedAnswers])
 
   if (loading) {
     return (
@@ -163,9 +177,11 @@ export default function Exam() {
 
   const currentQuestion = state.questions[state.currentIndex]
   const currentAnswer = state.answers[currentQuestion.id]
+  const isConfirmed = !!confirmedAnswers[currentQuestion.id]
+  const isCorrect = isConfirmed && confirmedAnswers[currentQuestion.id] === currentQuestion.correct_answer
   const minutes = Math.floor(remainingTime / 60)
   const seconds = remainingTime % 60
-  const answeredCount = Object.keys(state.answers).length
+  const confirmedCount = Object.keys(confirmedAnswers).length
   const isTimeLow = remainingTime < 300
 
   return (
@@ -178,7 +194,7 @@ export default function Exam() {
               {state.currentIndex + 1} / {state.questions.length}
             </span>
             <span className="text-sm text-gray-500">
-              回答済み {answeredCount}問
+              確定 {confirmedCount}問
             </span>
           </div>
           <div className={`font-mono font-bold ${isTimeLow ? 'text-red-600' : 'text-gray-900'}`}>
@@ -204,25 +220,74 @@ export default function Exam() {
           {['A', 'B', 'C', 'D'].map((option) => {
             const choiceKey = `choice_${option.toLowerCase()}` as keyof Question
             const choiceText = currentQuestion[choiceKey] as string
+            const isThisCorrect = option === currentQuestion.correct_answer
             const isSelected = currentAnswer === option
+
+            let borderClass = 'border-gray-200'
+            let bgClass = ''
+            if (isConfirmed) {
+              if (isThisCorrect) {
+                borderClass = 'border-green-500'
+                bgClass = 'bg-green-50'
+              } else if (isSelected) {
+                borderClass = 'border-red-500'
+                bgClass = 'bg-red-50'
+              }
+            } else if (isSelected) {
+              borderClass = 'border-gray-900'
+              bgClass = 'bg-gray-50'
+            }
 
             return (
               <button
                 key={option}
                 onClick={() => handleAnswer(option)}
-                className={`w-full text-left p-3 rounded-lg border transition-colors ${
-                  isSelected
-                    ? 'border-gray-900 bg-gray-50'
-                    : 'border-gray-200 hover:border-gray-300'
-                }`}
+                disabled={isConfirmed}
+                className={`w-full text-left p-3 rounded-lg border ${borderClass} ${bgClass} transition-colors disabled:cursor-default`}
               >
                 <span className="font-medium text-gray-700 mr-2">{option}.</span>
                 <span className="text-gray-900">{choiceText}</span>
+                {isConfirmed && isThisCorrect && (
+                  <span className="ml-2 text-green-600 text-sm">← 正解</span>
+                )}
               </button>
             )
           })}
         </div>
+
+        {!isConfirmed && currentAnswer && (
+          <button
+            onClick={handleConfirmAnswer}
+            disabled={confirming}
+            className="w-full mt-4 bg-gray-900 text-white py-3 rounded-lg font-medium hover:bg-gray-800 transition-colors disabled:opacity-50"
+          >
+            {confirming ? '送信中...' : '回答する'}
+          </button>
+        )}
       </div>
+
+      {/* Result & Explanation */}
+      {isConfirmed && (
+        <>
+          <div className={`rounded-lg p-4 mb-4 ${isCorrect ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}`}>
+            <span className={`font-bold ${isCorrect ? 'text-green-700' : 'text-red-700'}`}>
+              {isCorrect ? '正解!' : `不正解 - 正解は ${currentQuestion.correct_answer}`}
+            </span>
+          </div>
+
+          <div className="bg-gray-50 rounded-lg p-4 mb-4 border border-gray-200">
+            <h3 className="font-medium text-gray-900 mb-2">解説</h3>
+            <p className="text-gray-700 text-sm whitespace-pre-wrap">{currentQuestion.explanation}</p>
+            {currentQuestion.incorrect_explanation && (
+              <div className="mt-3 pt-3 border-t border-gray-200">
+                <h4 className="font-medium text-gray-900 mb-1 text-sm">不正解の選択肢について</h4>
+                <p className="text-gray-700 text-sm whitespace-pre-wrap">{currentQuestion.incorrect_explanation}</p>
+              </div>
+            )}
+            <InlineFeedback questionId={currentQuestion.id} />
+          </div>
+        </>
+      )}
 
       {/* Navigation */}
       <div className="flex items-center justify-between gap-3 mb-4">
@@ -254,7 +319,8 @@ export default function Exam() {
         <h3 className="text-xs font-medium text-gray-500 mb-3">問題一覧</h3>
         <div className="grid grid-cols-10 gap-1">
           {state.questions.map((q, i) => {
-            const isAnswered = !!state.answers[q.id]
+            const isConfirmedQ = !!confirmedAnswers[q.id]
+            const isSelectedQ = !!state.answers[q.id]
             const isCurrent = i === state.currentIndex
 
             return (
@@ -264,7 +330,9 @@ export default function Exam() {
                 className={`w-7 h-7 text-xs rounded ${
                   isCurrent
                     ? 'bg-gray-900 text-white'
-                    : isAnswered
+                    : isConfirmedQ
+                    ? 'bg-green-100 text-green-700'
+                    : isSelectedQ
                     ? 'bg-gray-200 text-gray-700'
                     : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
                 }`}
