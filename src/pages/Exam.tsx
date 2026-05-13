@@ -1,8 +1,14 @@
 import { useState, useEffect, useCallback } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
-import { getRandomQuestions } from '../services/questions'
-import { createExamSession, submitAnswer, finishExamSession } from '../services/exam'
+import { getRandomQuestions, getQuestionsByIds } from '../services/questions'
+import {
+  createExamSession,
+  submitAnswer,
+  finishExamSession,
+  getSessionAnswers,
+} from '../services/exam'
+import { supabase } from '../lib/supabase'
 import InlineFeedback from '../components/InlineFeedback'
 import type { Question, ExamState } from '../types'
 
@@ -12,6 +18,8 @@ const TIME_LIMIT = 60 * 60
 export default function Exam() {
   const { user } = useAuth()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const resumeSessionId = searchParams.get('resume')
   const [state, setState] = useState<ExamState | null>(null)
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
@@ -26,17 +34,71 @@ export default function Exam() {
       if (!user) return
 
       try {
-        const questions = await getRandomQuestions(EXAM_QUESTIONS)
-        const session = await createExamSession(user.id, 'exam', questions.length)
+        if (resumeSessionId) {
+          // Resume existing session
+          const { data: session, error } = await supabase
+            .from('exam_sessions')
+            .select('*')
+            .eq('id', resumeSessionId)
+            .eq('user_id', user.id)
+            .single()
 
-        setState({
-          sessionId: session.id,
-          questions,
-          currentIndex: 0,
-          answers: {},
-          startTime: new Date(),
-          timeLimit: TIME_LIMIT,
-        })
+          if (error || !session) {
+            alert('セッションが見つかりませんでした')
+            navigate('/')
+            return
+          }
+          if (session.finished_at) {
+            alert('この試験は既に終了しています')
+            navigate('/')
+            return
+          }
+
+          const questionIds: string[] = session.question_ids || []
+          const questions = await getQuestionsByIds(questionIds)
+          const existingAnswers = await getSessionAnswers(session.id)
+
+          const answers: Record<string, string> = {}
+          const confirmed: Record<string, string> = {}
+          for (const a of existingAnswers) {
+            answers[a.question_id] = a.user_answer
+            confirmed[a.question_id] = a.user_answer
+          }
+
+          const elapsedSec = Math.floor(
+            (Date.now() - new Date(session.started_at).getTime()) / 1000
+          )
+          const adjustedStart = new Date(Date.now() - elapsedSec * 1000)
+
+          setState({
+            sessionId: session.id,
+            questions,
+            currentIndex: 0,
+            answers,
+            startTime: adjustedStart,
+            timeLimit: TIME_LIMIT,
+          })
+          setConfirmedAnswers(confirmed)
+        } else {
+          const questions = await getRandomQuestions(EXAM_QUESTIONS)
+          const questionIds = questions.map((q) => q.id)
+          const session = await createExamSession(
+            user.id,
+            'exam',
+            questions.length,
+            null,
+            questionIds
+          )
+
+          setState({
+            sessionId: session.id,
+            questions,
+            currentIndex: 0,
+            answers: {},
+            startTime: new Date(),
+            timeLimit: TIME_LIMIT,
+          })
+        }
       } catch (error) {
         console.error('Failed to initialize exam:', error)
         alert('試験の開始に失敗しました')
@@ -47,7 +109,7 @@ export default function Exam() {
     }
 
     initExam()
-  }, [user, navigate])
+  }, [user, navigate, resumeSessionId])
 
   useEffect(() => {
     if (!state) return

@@ -150,9 +150,10 @@ export default function AdminUserDetail() {
               const isExam = session.mode === 'exam'
               const passed = isExam && (session.score || 0) >= 70
               return (
-                <div
+                <Link
                   key={session.id}
-                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                  to={`/admin/sessions/${session.id}`}
+                  className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
                 >
                   <div className="flex items-center gap-3">
                     <span
@@ -190,7 +191,7 @@ export default function AdminUserDetail() {
                   }`}>
                     {isExam ? `${session.score}%` : `${session.total_questions}問`}
                   </div>
-                </div>
+                </Link>
               )
             })}
           </div>

@@ -12,6 +12,7 @@ import Stats from './pages/Stats'
 import AdminDashboard from './pages/admin/Dashboard'
 import AdminUsers from './pages/admin/Users'
 import AdminUserDetail from './pages/admin/UserDetail'
+import AdminSessionDetail from './pages/admin/SessionDetail'
 import AdminQuestions from './pages/admin/Questions'
 import AdminQuestionImport from './pages/admin/QuestionImport'
 import AdminFeedback from './pages/admin/Feedback'
@@ -47,6 +48,7 @@ function App() {
         <Route index element={<AdminDashboard />} />
         <Route path="users" element={<AdminUsers />} />
         <Route path="users/:userId" element={<AdminUserDetail />} />
+        <Route path="sessions/:sessionId" element={<AdminSessionDetail />} />
         <Route path="questions" element={<AdminQuestions />} />
         <Route path="questions/import" element={<AdminQuestionImport />} />
         <Route path="feedback" element={<AdminFeedback />} />

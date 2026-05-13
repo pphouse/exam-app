@@ -116,6 +116,74 @@ export async function getQuestionStats(): Promise<QuestionStats[]> {
   return data || []
 }
 
+// セッションの詳細（回答内容＋問題内容）を取得
+export async function getSessionDetail(sessionId: string): Promise<{
+  session: ExamSession | null
+  profile: Profile | null
+  answers: Array<Answer & {
+    question: {
+      question_id: string
+      question_text: string
+      chapter: string
+      choice_a: string
+      choice_b: string
+      choice_c: string
+      choice_d: string
+      correct_answer: string
+      explanation: string | null
+    }
+  }>
+  allQuestions: Array<{
+    id: string
+    question_id: string
+    chapter: string
+    question_text: string
+    correct_answer: string
+  }>
+}> {
+  const { data: session } = await supabase
+    .from('exam_sessions')
+    .select('*')
+    .eq('id', sessionId)
+    .single()
+
+  let profile: Profile | null = null
+  if (session) {
+    const { data: p } = await supabase
+      .from('profiles')
+      .select('*')
+      .eq('id', session.user_id)
+      .single()
+    profile = p
+  }
+
+  const { data: answers } = await supabase
+    .from('answers')
+    .select(`
+      *,
+      question:questions(question_id, question_text, chapter, choice_a, choice_b, choice_c, choice_d, correct_answer, explanation)
+    `)
+    .eq('session_id', sessionId)
+    .order('answered_at', { ascending: true })
+
+  // Fetch all questions in the session (including unanswered ones)
+  let allQuestions: any[] = []
+  if (session?.question_ids && Array.isArray(session.question_ids)) {
+    const { data: qs } = await supabase
+      .from('questions')
+      .select('id, question_id, chapter, question_text, correct_answer')
+      .in('id', session.question_ids)
+    allQuestions = qs || []
+  }
+
+  return {
+    session,
+    profile,
+    answers: (answers || []) as any,
+    allQuestions,
+  }
+}
+
 // 全体統計サマリーを取得
 export async function getAdminOverviewStats(): Promise<{
   totalUsers: number

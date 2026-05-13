@@ -26,6 +26,21 @@ export async function getRandomQuestions(count: number): Promise<Question[]> {
   return (data || []).sort(() => Math.random() - 0.5)
 }
 
+export async function getQuestionsByIds(ids: string[]): Promise<Question[]> {
+  if (ids.length === 0) return []
+  const { data, error } = await supabase
+    .from('questions')
+    .select('*')
+    .in('id', ids)
+
+  if (error) throw error
+  if (!data) return []
+
+  // Preserve the original order of ids
+  const map = new Map(data.map(q => [q.id, q]))
+  return ids.map(id => map.get(id)).filter((q): q is Question => !!q)
+}
+
 export async function getQuestionsByChapter(chapter: string): Promise<Question[]> {
   const { data, error } = await supabase
     .from('questions')

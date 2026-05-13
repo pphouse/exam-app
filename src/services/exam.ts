@@ -5,7 +5,8 @@ export async function createExamSession(
   userId: string,
   mode: 'exam' | 'practice',
   totalQuestions: number,
-  chapter: string | null = null
+  chapter: string | null = null,
+  questionIds: string[] | null = null
 ): Promise<ExamSession> {
   const { data, error } = await supabase
     .from('exam_sessions')
@@ -15,12 +16,38 @@ export async function createExamSession(
       chapter,
       started_at: new Date().toISOString(),
       total_questions: totalQuestions,
+      question_ids: questionIds,
     })
     .select()
     .single()
 
   if (error) throw error
   return data
+}
+
+export async function getUnfinishedExamSession(userId: string): Promise<ExamSession | null> {
+  const { data, error } = await supabase
+    .from('exam_sessions')
+    .select('*')
+    .eq('user_id', userId)
+    .eq('mode', 'exam')
+    .is('finished_at', null)
+    .not('question_ids', 'is', null)
+    .order('started_at', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+
+  if (error) throw error
+  return data
+}
+
+export async function abandonExamSession(sessionId: string): Promise<void> {
+  const { error } = await supabase
+    .from('exam_sessions')
+    .update({ finished_at: new Date().toISOString(), score: 0 })
+    .eq('id', sessionId)
+
+  if (error) throw error
 }
 
 export async function submitAnswer(

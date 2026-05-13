@@ -1,5 +1,8 @@
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
+import { getUnfinishedExamSession, abandonExamSession } from '../services/exam'
+import type { ExamSession } from '../types'
 
 const CheckIcon = () => (
   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -9,6 +12,19 @@ const CheckIcon = () => (
 
 export default function Home() {
   const { user } = useAuth()
+  const [unfinished, setUnfinished] = useState<ExamSession | null>(null)
+
+  useEffect(() => {
+    if (!user) return
+    getUnfinishedExamSession(user.id).then(setUnfinished).catch(console.error)
+  }, [user])
+
+  const handleAbandon = async () => {
+    if (!unfinished) return
+    if (!window.confirm('進行中の試験を破棄しますか？')) return
+    await abandonExamSession(unfinished.id)
+    setUnfinished(null)
+  }
 
   return (
     <div className="space-y-6">
@@ -21,6 +37,34 @@ export default function Home() {
           医療生成AIパスポート Tier1（リテラシー級）模擬試験
         </p>
       </div>
+
+      {/* Unfinished exam */}
+      {unfinished && (
+        <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <h3 className="font-bold text-gray-900">進行中の試験があります</h3>
+              <p className="text-sm text-gray-600 mt-1">
+                開始日時: {new Date(unfinished.started_at).toLocaleString('ja-JP')}
+              </p>
+            </div>
+          </div>
+          <div className="flex gap-2 mt-3">
+            <Link
+              to={`/exam?resume=${unfinished.id}`}
+              className="flex-1 text-center bg-gray-900 text-white py-2 rounded-lg font-medium hover:bg-gray-800 transition-colors"
+            >
+              続きから受験
+            </Link>
+            <button
+              onClick={handleAbandon}
+              className="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              破棄
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Main Actions */}
       <div className="grid md:grid-cols-2 gap-4">
@@ -45,12 +89,21 @@ export default function Home() {
                 終了後に結果・解説表示
               </li>
             </ul>
-            <Link
-              to="/exam"
-              className="block w-full text-center bg-gray-900 text-white py-3 rounded-lg font-medium hover:bg-gray-800 transition-colors"
-            >
-              試験を開始する
-            </Link>
+            {unfinished ? (
+              <button
+                disabled
+                className="block w-full text-center bg-gray-300 text-gray-500 py-3 rounded-lg font-medium cursor-not-allowed"
+              >
+                進行中の試験を完了してください
+              </button>
+            ) : (
+              <Link
+                to="/exam"
+                className="block w-full text-center bg-gray-900 text-white py-3 rounded-lg font-medium hover:bg-gray-800 transition-colors"
+              >
+                試験を開始する
+              </Link>
+            )}
           </div>
         </div>
 
