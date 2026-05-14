@@ -361,18 +361,32 @@ export default function Exam() {
           前へ
         </button>
         <button
-          onClick={handleFinish}
-          disabled={submitting}
-          className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50"
-        >
-          {submitting ? '提出中...' : '試験を終了'}
-        </button>
-        <button
           onClick={handleNext}
           disabled={state.currentIndex === state.questions.length - 1}
           className="px-4 py-2 border border-gray-200 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed"
         >
           次へ
+        </button>
+      </div>
+
+      {/* Save & End Actions */}
+      <div className="flex items-center gap-3 mb-4">
+        <button
+          onClick={() => {
+            if (window.confirm('現在の回答状態を保存して中断します。ホームから続きを再開できます。')) {
+              navigate('/')
+            }
+          }}
+          className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50"
+        >
+          保存して中断
+        </button>
+        <button
+          onClick={handleFinish}
+          disabled={submitting}
+          className="flex-1 px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50"
+        >
+          {submitting ? '提出中...' : '試験を終了'}
         </button>
       </div>
 
