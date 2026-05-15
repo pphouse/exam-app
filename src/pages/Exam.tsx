@@ -76,10 +76,14 @@ export default function Exam() {
           }
           const adjustedStart = new Date(Date.now() - elapsedSec * 1000)
 
+          // 未回答の最初の問題に移動（全問回答済みなら最初へ）
+          const firstUnansweredIndex = questions.findIndex((q) => !confirmed[q.id])
+          const startIndex = firstUnansweredIndex >= 0 ? firstUnansweredIndex : 0
+
           setState({
             sessionId: session.id,
             questions,
-            currentIndex: 0,
+            currentIndex: startIndex,
             answers,
             startTime: adjustedStart,
             timeLimit: TIME_LIMIT,
