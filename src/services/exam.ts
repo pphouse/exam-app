@@ -50,6 +50,17 @@ export async function abandonExamSession(sessionId: string): Promise<void> {
   if (error) throw error
 }
 
+export async function pauseExamSession(sessionId: string): Promise<void> {
+  // Reset started_at so that the timer restarts on resume.
+  // This is a simple workaround until paused_at tracking is added.
+  const { error } = await supabase
+    .from('exam_sessions')
+    .update({ started_at: new Date().toISOString() })
+    .eq('id', sessionId)
+
+  if (error) throw error
+}
+
 export async function submitAnswer(
   sessionId: string,
   questionId: string,

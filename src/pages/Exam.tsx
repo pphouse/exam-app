@@ -7,6 +7,7 @@ import {
   submitAnswer,
   finishExamSession,
   getSessionAnswers,
+  pauseExamSession,
 } from '../services/exam'
 import { supabase } from '../lib/supabase'
 import InlineFeedback from '../components/InlineFeedback'
@@ -65,9 +66,14 @@ export default function Exam() {
             confirmed[a.question_id] = a.user_answer
           }
 
-          const elapsedSec = Math.floor(
+          let elapsedSec = Math.floor(
             (Date.now() - new Date(session.started_at).getTime()) / 1000
           )
+          // 中断中に時間切れになっていたら、タイマーをリセットして再開
+          if (elapsedSec >= TIME_LIMIT) {
+            await pauseExamSession(session.id)
+            elapsedSec = 0
+          }
           const adjustedStart = new Date(Date.now() - elapsedSec * 1000)
 
           setState({
@@ -372,10 +378,15 @@ export default function Exam() {
       {/* Save & End Actions */}
       <div className="flex items-center gap-3 mb-4">
         <button
-          onClick={() => {
-            if (window.confirm('現在の回答状態を保存して中断します。ホームから続きを再開できます。')) {
-              navigate('/')
+          onClick={async () => {
+            if (!state) return
+            if (!window.confirm('現在の回答状態を保存して中断します。ホームから続きを再開できます（タイマーは再開時にリセットされます）。')) return
+            try {
+              await pauseExamSession(state.sessionId)
+            } catch (error) {
+              console.error('Failed to pause session:', error)
             }
+            navigate('/')
           }}
           className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 bg-white hover:bg-gray-50"
         >
