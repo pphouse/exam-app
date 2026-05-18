@@ -1,0 +1,485 @@
+[
+  {
+    "qid": "Q2-021",
+    "old_correct": "B",
+    "new_correct": "A",
+    "question_text": "看護記録における生成AIの活用として適切でないものはどれか。",
+    "new_correct_choice": "AIによる看護判断の最終決定"
+  },
+  {
+    "qid": "Q2-035",
+    "old_correct": "B",
+    "new_correct": "D",
+    "question_text": "医療機関のウェブサイトに設置するAIチャットボットの適切な機能として最も適切なものはどれか。",
+    "new_correct_choice": "診療時間、予約方法、持ち物などの一般的な問い合わせへの自動応答"
+  },
+  {
+    "qid": "Q2-036",
+    "old_correct": "B",
+    "new_correct": "D",
+    "question_text": "生成AIを用いて薬歴（お薬手帳の記録）の要約を作成する場合の留意点として最も適切なものはどれか。",
+    "new_correct_choice": "薬剤師がAIの出力を確認し、薬剤名、用量、服用方法の正確性を検証する"
+  },
+  {
+    "qid": "Q2-037",
+    "old_correct": "C",
+    "new_correct": "B",
+    "question_text": "医学部の臨床実習前教育において、生成AIを活用した症例シミュレーションを実施する場合の注意点として最も重要なものはどれか。",
+    "new_correct_choice": "AIが生成した症例の医学的妥当性を教員が検証し、不正確な内容が含まれていないか確認する"
+  },
+  {
+    "qid": "Q2-044",
+    "old_correct": "A",
+    "new_correct": "B",
+    "question_text": "医療事務担当者が生成AIを用いてレセプト（診療報酬請求書）の点検を行う場合、最も適切な活用方法はどれか。",
+    "new_correct_choice": "AIが病名と処置の整合性をチェックした結果を参考に、人間が最終確認を行う"
+  },
+  {
+    "qid": "Q2-046",
+    "old_correct": "D",
+    "new_correct": "B",
+    "question_text": "「医療DX」における「全国医療情報プラットフォーム」と生成AIの関係として想定されるものはどれか。",
+    "new_correct_choice": "プラットフォームに集約された医療情報を、適切なアクセス管理のもとでAI活用に利用できる可能性がある"
+  },
+  {
+    "qid": "Q2-054",
+    "old_correct": "A",
+    "new_correct": "D",
+    "question_text": "生成AIによる医療文書作成支援が有効と考えられる文書はどれか。",
+    "new_correct_choice": "退院サマリーの下書き作成"
+  },
+  {
+    "qid": "Q2-058",
+    "old_correct": "D",
+    "new_correct": "A",
+    "question_text": "内視鏡検査におけるAI活用の例として最も適切なものはどれか。",
+    "new_correct_choice": "AIがリアルタイムで病変候補を検出し、医師の見落とし防止を支援する"
+  },
+  {
+    "qid": "Q2-059",
+    "old_correct": "C",
+    "new_correct": "D",
+    "question_text": "入院患者の転倒リスク評価にAIを活用する場合、最も重要な運用上の考慮事項はどれか。",
+    "new_correct_choice": "AIのリスク評価を参考にしつつ、看護師の観察と判断を組み合わせて予防策を講じる"
+  },
+  {
+    "qid": "Q2-060",
+    "old_correct": "A",
+    "new_correct": "C",
+    "question_text": "「電子処方箋」制度と生成AIの活用可能性として考えられるものはどれか。",
+    "new_correct_choice": "電子処方箋データを活用した服薬指導文書の作成支援"
+  },
+  {
+    "qid": "Q3-003",
+    "old_correct": "B",
+    "new_correct": "D",
+    "question_text": "医療機関が患者の個人情報を第三者に提供できる場合として適切でないものはどれか。",
+    "new_correct_choice": "医療機関の利益のために必要と判断した場合"
+  },
+  {
+    "qid": "Q3-007",
+    "old_correct": "B",
+    "new_correct": "C",
+    "question_text": "次世代医療基盤法（医療分野の研究開発に資するための匿名加工医療情報に関する法律）の目的として最も適切なものはどれか。",
+    "new_correct_choice": "医療情報を匿名加工して研究開発に利活用できる仕組みを整備すること"
+  },
+  {
+    "qid": "Q3-012",
+    "old_correct": "D",
+    "new_correct": "B",
+    "question_text": "医療情報を海外のクラウドサービスで取り扱う場合（データの越境移転）に関する記述として最も適切なものはどれか。",
+    "new_correct_choice": "海外の法制度や規制を確認し、個人情報保護法に基づく適切な措置を講じる必要がある"
+  },
+  {
+    "qid": "Q3-013",
+    "old_correct": "B",
+    "new_correct": "A",
+    "question_text": "医療情報システムにおける「アクセス制御」の目的として最も適切なものはどれか。",
+    "new_correct_choice": "権限のある者だけが必要な情報にアクセスできるようにし、不正アクセスを防ぐこと"
+  },
+  {
+    "qid": "Q3-019",
+    "old_correct": "A",
+    "new_correct": "C",
+    "question_text": "医療従事者が生成AIサービスを業務利用する際、入力データに関するリスク評価として最も重要な確認事項はどれか。",
+    "new_correct_choice": "入力データがAIの学習に使用されるか、データがどこに保存されるか"
+  },
+  {
+    "qid": "Q3-021",
+    "old_correct": "C",
+    "new_correct": "D",
+    "question_text": "医療機関の受付担当者が患者の診察券を作成する際、「要配慮個人情報」の取得に関して最も適切な対応はどれか。",
+    "new_correct_choice": "問診票で病歴を聞き取る前に、利用目的を明示し本人の同意を得る"
+  },
+  {
+    "qid": "Q3-024",
+    "old_correct": "B",
+    "new_correct": "A",
+    "question_text": "医療研究目的でデータを利活用する際、「仮名加工情報」を選択するメリットとして最も適切なものはどれか。",
+    "new_correct_choice": "匿名加工情報より加工の程度が軽く、データの有用性を保ちやすい"
+  },
+  {
+    "qid": "Q3-026",
+    "old_correct": "A",
+    "new_correct": "B",
+    "question_text": "電子カルテデータを院内のAI分析システムで利用する場合と、外部クラウドのAIサービスで利用する場合の違いとして最も適切なものはどれか。",
+    "new_correct_choice": "外部クラウド利用の場合は、データの外部送信に伴う第三者提供の可能性や委託先管理の観点から追加の検討が必要"
+  },
+  {
+    "qid": "Q3-035",
+    "old_correct": "B",
+    "new_correct": "C",
+    "question_text": "3省2ガイドラインにおいて、クラウドサービスを提供するベンダー（事業者）に求められる事項として最も適切なものはどれか。",
+    "new_correct_choice": "サービスのセキュリティ対策、運用管理体制、障害対応などの安全管理措置"
+  },
+  {
+    "qid": "Q3-057",
+    "old_correct": "C",
+    "new_correct": "A",
+    "question_text": "医療機関でランサムウェア攻撃を受け、電子カルテシステムが使用不能になった場合の対応として、最も適切なものはどれか。",
+    "new_correct_choice": "感染拡大を防ぐためネットワークから隔離し、バックアップからの復旧を試みる"
+  },
+  {
+    "qid": "Q4-007",
+    "old_correct": "D",
+    "new_correct": "A",
+    "question_text": "AIによる診断支援と医師法の関係について、最も適切な説明はどれか。",
+    "new_correct_choice": "AIの診断結果を参考にしつつ、最終的な診断は医師が責任を持って行う必要がある"
+  },
+  {
+    "qid": "Q4-009",
+    "old_correct": "D",
+    "new_correct": "A",
+    "question_text": "2020年の薬機法改正で導入された「変更計画（IDATEN）」の目的として、最も適切なものはどれか。",
+    "new_correct_choice": "AI医療機器の性能向上に伴う変更手続きを迅速化すること"
+  },
+  {
+    "qid": "Q4-010",
+    "old_correct": "B",
+    "new_correct": "A",
+    "question_text": "AI事業者ガイドラインで求められる「透明性」の確保の例として、最も適切なものはどれか。",
+    "new_correct_choice": "AIの判断根拠や限界について、利用者が理解できる形で説明すること"
+  },
+  {
+    "qid": "Q4-012",
+    "old_correct": "A",
+    "new_correct": "D",
+    "question_text": "医療AIを用いた臨床研究を実施する際に遵守すべき法令として、最も関連性が高いものはどれか。",
+    "new_correct_choice": "臨床研究法"
+  },
+  {
+    "qid": "Q4-020",
+    "old_correct": "C",
+    "new_correct": "A",
+    "question_text": "EU AI法（AI Act）における医療AIの位置づけとして、最も適切なものはどれか。",
+    "new_correct_choice": "医療AIは高リスクAIに分類される可能性が高く、厳格な要件が課される"
+  },
+  {
+    "qid": "Q4-023",
+    "old_correct": "B",
+    "new_correct": "C",
+    "question_text": "AI事業者ガイドラインにおいて、AI開発者が果たすべき責任として、最も重要度が高いものはどれか。",
+    "new_correct_choice": "AIの安全性・信頼性を確保し、適切な情報提供を行うこと"
+  },
+  {
+    "qid": "Q4-024",
+    "old_correct": "B",
+    "new_correct": "D",
+    "question_text": "AI医療機器の承認審査において、「学習データの品質」が重視される理由として、最も適切なものはどれか。",
+    "new_correct_choice": "学習データの偏りや品質がAIの判断精度や公平性に直接影響するため"
+  },
+  {
+    "qid": "Q4-029",
+    "old_correct": "B",
+    "new_correct": "A",
+    "question_text": "PMDAが実施するAI医療機器の審査において評価される項目として、適切でないものはどれか。",
+    "new_correct_choice": "開発企業の株価"
+  },
+  {
+    "qid": "Q4-030",
+    "old_correct": "A",
+    "new_correct": "B",
+    "question_text": "2019年の薬機法改正で導入された「先駆け審査指定制度」の対象として、AI医療機器は含まれるか。",
+    "new_correct_choice": "画期的な医療機器として要件を満たせば対象となり得る"
+  },
+  {
+    "qid": "Q4-031",
+    "old_correct": "B",
+    "new_correct": "D",
+    "question_text": "AIを用いた遠隔診療支援に関する法的な考え方として、最も適切なものはどれか。",
+    "new_correct_choice": "遠隔診療においてもAIは補助ツールであり、診断・治療の判断は医師が行う必要がある"
+  },
+  {
+    "qid": "Q4-034",
+    "old_correct": "C",
+    "new_correct": "D",
+    "question_text": "医療AIの臨床評価を行う際に、「人を対象とする生命科学・医学系研究に関する倫理指針」の遵守が求められる場面はどれか。",
+    "new_correct_choice": "新たに被験者を募集してAIの診断精度を検証する臨床研究"
+  },
+  {
+    "qid": "Q4-035",
+    "old_correct": "B",
+    "new_correct": "A",
+    "question_text": "AI事業者ガイドラインにおける「説明責任（アカウンタビリティ）」の意味として、最も適切なものはどれか。",
+    "new_correct_choice": "AIに関する意思決定や行動について、関係者に対して適切に説明できる状態を維持すること"
+  },
+  {
+    "qid": "Q4-037",
+    "old_correct": "A",
+    "new_correct": "C",
+    "question_text": "HAIPガイドラインにおいて、医療AIの「臨床的妥当性」を評価する際に最も重視すべき観点はどれか。",
+    "new_correct_choice": "AIの判断が実際の臨床現場で医療の質向上に寄与すること"
+  },
+  {
+    "qid": "Q4-043",
+    "old_correct": "B",
+    "new_correct": "D",
+    "question_text": "PMDAが提供する「RS（Regulatory Science）戦略相談」をAI医療機器の開発企業が活用するメリットとして、最も適切なものはどれか。",
+    "new_correct_choice": "開発段階で審査の考え方を確認でき、効率的な開発・申請が可能になる"
+  },
+  {
+    "qid": "Q4-045",
+    "old_correct": "C",
+    "new_correct": "A",
+    "question_text": "HAIPガイドラインに基づく医療AI開発において、「外部検証データセット」を使用する目的として、最も適切なものはどれか。",
+    "new_correct_choice": "学習データとは独立したデータでAIの性能を客観的に評価するため"
+  },
+  {
+    "qid": "Q4-051",
+    "old_correct": "C",
+    "new_correct": "B",
+    "question_text": "HAIPガイドラインが対象とする「保健医療分野のAI」の範囲として、最も適切なものはどれか。",
+    "new_correct_choice": "診断・治療支援から健康管理、創薬支援まで幅広い医療・ヘルスケア分野のAI"
+  },
+  {
+    "qid": "Q4-053",
+    "old_correct": "B",
+    "new_correct": "D",
+    "question_text": "AI医療機器の承認審査においてPMDAが重視する「臨床的意義」の評価として、最も適切なものはどれか。",
+    "new_correct_choice": "AIの導入により患者や医療現場にどのようなメリットがもたらされるかを評価する"
+  },
+  {
+    "qid": "Q4-055",
+    "old_correct": "B",
+    "new_correct": "D",
+    "question_text": "薬機法に基づく医療機器の製造販売後安全管理（GVP）の目的として、最も適切なものはどれか。",
+    "new_correct_choice": "製造販売した医療機器の安全性を市販後も継続的に確保すること"
+  },
+  {
+    "qid": "Q5-001",
+    "old_correct": "A",
+    "new_correct": "D",
+    "question_text": "医療AIにおける「バイアス」の説明として、最も適切なものはどれか。",
+    "new_correct_choice": "学習データや設計に起因し、特定の集団に対して不公平な判断をする傾向"
+  },
+  {
+    "qid": "Q5-003",
+    "old_correct": "A",
+    "new_correct": "D",
+    "question_text": "生成AIの「ハルシネーション（幻覚）」とは何か。",
+    "new_correct_choice": "AIが事実に基づかない誤った情報をあたかも正しいかのように生成すること"
+  },
+  {
+    "qid": "Q5-004",
+    "old_correct": "A",
+    "new_correct": "D",
+    "question_text": "医療AIの「説明可能性（Explainability）」が重要とされる理由として、最も適切なものはどれか。",
+    "new_correct_choice": "医師や患者がAIの判断根拠を理解し、信頼性を評価できるようにするため"
+  },
+  {
+    "qid": "Q5-007",
+    "old_correct": "D",
+    "new_correct": "A",
+    "question_text": "医療AIのプライバシーリスクとして、最も適切なものはどれか。",
+    "new_correct_choice": "学習データから個人が特定される可能性や、入力データの漏えいリスク"
+  },
+  {
+    "qid": "Q5-009",
+    "old_correct": "D",
+    "new_correct": "B",
+    "question_text": "医療AIの導入が患者の自律性に影響を与える可能性として、最も適切な懸念はどれか。",
+    "new_correct_choice": "AIの判断が患者の意思決定に過度に影響し、患者自身が選択する余地が狭まる可能性"
+  },
+  {
+    "qid": "Q5-012",
+    "old_correct": "D",
+    "new_correct": "B",
+    "question_text": "医療倫理の四原則に含まれないものはどれか。",
+    "new_correct_choice": "効率性（Efficiency）"
+  },
+  {
+    "qid": "Q5-015",
+    "old_correct": "A",
+    "new_correct": "B",
+    "question_text": "医療AIの導入におけるリスクアセスメントの目的として、最も適切なものはどれか。",
+    "new_correct_choice": "AIに関連するリスクを特定・評価し、適切な対策を講じること"
+  },
+  {
+    "qid": "Q5-016",
+    "old_correct": "D",
+    "new_correct": "B",
+    "question_text": "AI診断支援を使用する際のインフォームド・コンセントにおいて、患者に説明すべき内容として、最も重要度が高いものはどれか。",
+    "new_correct_choice": "AIの判断には限界があり、最終判断は医師が行うこと"
+  },
+  {
+    "qid": "Q5-020",
+    "old_correct": "C",
+    "new_correct": "B",
+    "question_text": "医療AIの学習データを作成する際の「差分プライバシー」技術の目的として、最も適切なものはどれか。",
+    "new_correct_choice": "学習データから個人を特定することを数学的に困難にすること"
+  },
+  {
+    "qid": "Q5-024",
+    "old_correct": "D",
+    "new_correct": "B",
+    "question_text": "医療AIの導入に際して、リスクと便益のバランスを評価する際に最も重要な考慮事項はどれか。",
+    "new_correct_choice": "AI導入による患者への便益が、想定されるリスクを上回ること"
+  },
+  {
+    "qid": "Q5-026",
+    "old_correct": "A",
+    "new_correct": "D",
+    "question_text": "生成AIのハルシネーションが医療分野で特に問題となる理由として、最も適切なものはどれか。",
+    "new_correct_choice": "誤った医療情報が患者の健康被害につながる可能性があるため"
+  },
+  {
+    "qid": "Q5-027",
+    "old_correct": "B",
+    "new_correct": "C",
+    "question_text": "AIを用いた診断を受けた患者が「なぜAIはそう判断したのか」と質問した場合、医師の対応として最も適切なものはどれか。",
+    "new_correct_choice": "AIの出力に基づき、分かりやすい言葉で判断根拠を説明する努力をする"
+  },
+  {
+    "qid": "Q5-030",
+    "old_correct": "A",
+    "new_correct": "C",
+    "question_text": "医療AIの「ドリフト」（性能劣化）が発生する原因として、最も適切なものはどれか。",
+    "new_correct_choice": "医療環境や患者集団の変化により、学習データと実際のデータに乖離が生じること"
+  },
+  {
+    "qid": "Q5-032",
+    "old_correct": "A",
+    "new_correct": "C",
+    "question_text": "AI診断支援システムが誤った診断提案を出し、医師がそれを採用して患者に害が生じた場合、責任の所在に関する考え方として最も適切なものはどれか。",
+    "new_correct_choice": "医師の注意義務と、AI開発者・提供者の製品責任が複合的に検討される"
+  },
+  {
+    "qid": "Q5-033",
+    "old_correct": "A",
+    "new_correct": "C",
+    "question_text": "医療AIの学習に用いたデータから患者を特定する攻撃手法として、「メンバーシップ推論攻撃」がある。この攻撃の内容として、最も適切なものはどれか。",
+    "new_correct_choice": "特定の個人のデータがAIの学習に使われたかどうかを推測すること"
+  },
+  {
+    "qid": "Q5-034",
+    "old_correct": "A",
+    "new_correct": "C",
+    "question_text": "医療AIが治療方針を提案する際に、患者の自律性を尊重するために重要な点はどれか。",
+    "new_correct_choice": "AIの提案を含む複数の選択肢を示し、患者自身が決定できるよう支援する"
+  },
+  {
+    "qid": "Q5-037",
+    "old_correct": "D",
+    "new_correct": "C",
+    "question_text": "医療AI導入時の「リスクコミュニケーション」の目的として、最も適切なものはどれか。",
+    "new_correct_choice": "AIのリスクについて関係者と情報を共有し、相互理解を促進すること"
+  },
+  {
+    "qid": "Q5-042",
+    "old_correct": "A",
+    "new_correct": "D",
+    "question_text": "医療AIのインシデント発生時の対応として、最も適切な初動対応はどれか。",
+    "new_correct_choice": "関係者への報告と患者安全の確保を最優先に行う"
+  },
+  {
+    "qid": "Q6-002",
+    "old_correct": "A",
+    "new_correct": "B",
+    "question_text": "生成AIに対して「Few-shotプロンプティング」を行う利点として、最も適切なものはどれか。",
+    "new_correct_choice": "例を示すことで、AIが期待される出力形式やスタイルを理解しやすくなる"
+  },
+  {
+    "qid": "Q6-003",
+    "old_correct": "C",
+    "new_correct": "B",
+    "question_text": "看護師が生成AIを使って患者向け説明資料を作成する際の注意点として、最も適切なものはどれか。",
+    "new_correct_choice": "生成AIの出力を専門的知識に基づいて確認・修正してから使用する"
+  },
+  {
+    "qid": "Q6-006",
+    "old_correct": "A",
+    "new_correct": "D",
+    "question_text": "生成AIのプロンプト技法「Chain-of-Thought（思考の連鎖）」の効果として、最も適切なものはどれか。",
+    "new_correct_choice": "AIに段階的に推論させることで、複雑な問題に対する回答精度が向上する"
+  },
+  {
+    "qid": "Q6-007",
+    "old_correct": "A",
+    "new_correct": "C",
+    "question_text": "医師が生成AIを使用して診療情報提供書（紹介状）の下書きを作成する場合、最も適切な利用方法はどれか。",
+    "new_correct_choice": "一般的な紹介状の文例を参考に生成させ、医師が患者情報を加えて完成させる"
+  },
+  {
+    "qid": "Q6-008",
+    "old_correct": "A",
+    "new_correct": "C",
+    "question_text": "医療従事者が生成AIを使って医学文献を要約させる際の注意点として、最も適切なものはどれか。",
+    "new_correct_choice": "生成AIの要約が元文献の内容を正確に反映しているか、原典で確認する必要がある"
+  },
+  {
+    "qid": "Q6-009",
+    "old_correct": "A",
+    "new_correct": "C",
+    "question_text": "医療分野で生成AIを活用する際に、「ロールプロンプティング」が有効な理由として、最も適切なものはどれか。",
+    "new_correct_choice": "「あなたは医療専門家です」等と役割を設定することで、専門的な視点からの回答を促せるため"
+  },
+  {
+    "qid": "Q6-010",
+    "old_correct": "C",
+    "new_correct": "D",
+    "question_text": "生成AIが「この薬剤の副作用は〇〇です」と出力した場合、医療従事者が取るべき対応として、最も適切なものはどれか。",
+    "new_correct_choice": "添付文書や医薬品情報データベースで出力内容の正確性を確認する"
+  },
+  {
+    "qid": "Q6-017",
+    "old_correct": "D",
+    "new_correct": "C",
+    "question_text": "生成AIを医学文献のシステマティックレビューに活用する際の限界として、最も重要なものはどれか。",
+    "new_correct_choice": "生成AIには知識のカットオフ日があり、最新の文献を網羅的に検索できない可能性がある"
+  },
+  {
+    "qid": "Q6-018",
+    "old_correct": "B",
+    "new_correct": "A",
+    "question_text": "生成AIの「知識のカットオフ日」について、正しい説明はどれか。",
+    "new_correct_choice": "生成AIの学習データに含まれる最新の情報の日付であり、それ以降の情報は含まれていない"
+  },
+  {
+    "qid": "Q6-027",
+    "old_correct": "C",
+    "new_correct": "A",
+    "question_text": "医療事務職が生成AIを使って患者向けの受診案内文書を作成する場合、適切な対応はどれか。",
+    "new_correct_choice": "一般的な受診案内のテンプレートを生成させ、内容を確認してから使用する"
+  },
+  {
+    "qid": "Q6-028",
+    "old_correct": "D",
+    "new_correct": "A",
+    "question_text": "生成AIを使って医学論文の要約を作成させる際の適切なプロンプト指示はどれか。",
+    "new_correct_choice": "この論文の目的、方法、結果、結論を200文字程度で要約してください"
+  },
+  {
+    "qid": "Q6-029",
+    "old_correct": "D",
+    "new_correct": "B",
+    "question_text": "医療機関で生成AI利用教育を実施する際に、最も重要な教育内容はどれか。",
+    "new_correct_choice": "生成AIの限界とリスク、入力禁止情報、出力の検証方法"
+  },
+  {
+    "qid": "Q6-034",
+    "old_correct": "A",
+    "new_correct": "D",
+    "question_text": "Few-shotプロンプティングにおいて、提示する例の数について正しい説明はどれか。",
+    "new_correct_choice": "2〜5個程度の質の高い例を示すことが効果的であり、多すぎると逆効果になる場合もある"
+  }
+]

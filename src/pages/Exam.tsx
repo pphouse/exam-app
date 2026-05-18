@@ -352,7 +352,7 @@ export default function Exam() {
             <p className="text-gray-700 text-sm whitespace-pre-wrap">{currentQuestion.explanation}</p>
             {currentQuestion.incorrect_explanation && (
               <div className="mt-3 pt-3 border-t border-gray-200">
-                <h4 className="font-medium text-gray-900 mb-1 text-sm">不正解の選択肢について</h4>
+                <h4 className="font-medium text-gray-900 mb-1 text-sm">選択肢別の解説</h4>
                 <p className="text-gray-700 text-sm whitespace-pre-wrap">{currentQuestion.incorrect_explanation}</p>
               </div>
             )}
