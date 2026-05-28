@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
-import { getRandomQuestions, getQuestionsByIds } from '../services/questions'
+import { getExamQuestions, getQuestionsByIds } from '../services/questions'
 import {
   createExamSession,
   submitAnswer,
@@ -13,7 +13,6 @@ import { supabase } from '../lib/supabase'
 import InlineFeedback from '../components/InlineFeedback'
 import type { Question, ExamState } from '../types'
 
-const EXAM_QUESTIONS = 60
 const TIME_LIMIT = 60 * 60
 
 export default function Exam() {
@@ -90,7 +89,7 @@ export default function Exam() {
           })
           setConfirmedAnswers(confirmed)
         } else {
-          const questions = await getRandomQuestions(EXAM_QUESTIONS)
+          const questions = await getExamQuestions()
           const questionIds = questions.map((q) => q.id)
           const session = await createExamSession(
             user.id,

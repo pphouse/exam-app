@@ -1,29 +1,53 @@
 import { supabase } from '../lib/supabase'
 import type { Question } from '../types'
 
-export async function getRandomQuestions(count: number): Promise<Question[]> {
-  // Get all question IDs first
-  const { data: allQuestions, error: listError } = await supabase
-    .from('questions')
-    .select('id')
+// Fisher-Yates shuffle (sort(()=>Math.random()-0.5) はバイアスが生じるため使用しない)
+function shuffle<T>(array: T[]): T[] {
+  const result = [...array]
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[result[i], result[j]] = [result[j], result[i]]
+  }
+  return result
+}
 
-  if (listError) throw listError
-  if (!allQuestions || allQuestions.length === 0) return []
+// 模擬試験用: 章別の比例配分で60問を抽出
+// 各章の問題数 (45/60/60/55/45/35/10) から、60問になるよう比例配分
+const EXAM_DISTRIBUTION: Record<string, number> = {
+  '第1章': 9,
+  '第2章': 12,
+  '第3章': 12,
+  '第4章': 10,
+  '第5章': 9,
+  '第6章': 7,
+  '第7章': 1,
+}
 
-  // Shuffle and take the first `count` items
-  const shuffled = allQuestions.sort(() => Math.random() - 0.5)
-  const selectedIds = shuffled.slice(0, Math.min(count, shuffled.length)).map(q => q.id)
-
-  // Fetch full question data
-  const { data, error } = await supabase
-    .from('questions')
-    .select('*')
-    .in('id', selectedIds)
-
+export async function getExamQuestions(): Promise<Question[]> {
+  const { data: allQuestions, error } = await supabase.from('questions').select('*')
   if (error) throw error
+  if (!allQuestions) return []
 
-  // Shuffle the result to randomize order
-  return (data || []).sort(() => Math.random() - 0.5)
+  const byChapter: Record<string, Question[]> = {}
+  for (const q of allQuestions) {
+    if (!byChapter[q.chapter]) byChapter[q.chapter] = []
+    byChapter[q.chapter].push(q)
+  }
+
+  const selected: Question[] = []
+  for (const [chapter, count] of Object.entries(EXAM_DISTRIBUTION)) {
+    const pool = byChapter[chapter] || []
+    selected.push(...shuffle(pool).slice(0, count))
+  }
+  // 出題順もシャッフル
+  return shuffle(selected)
+}
+
+export async function getRandomQuestions(count: number): Promise<Question[]> {
+  const { data: allQuestions, error } = await supabase.from('questions').select('*')
+  if (error) throw error
+  if (!allQuestions || allQuestions.length === 0) return []
+  return shuffle(allQuestions).slice(0, Math.min(count, allQuestions.length))
 }
 
 export async function getQuestionsByIds(ids: string[]): Promise<Question[]> {
