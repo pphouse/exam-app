@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { getExamQuestions, getQuestionsByIds } from '../services/questions'
@@ -28,10 +28,16 @@ export default function Exam() {
   const [questionTimes, setQuestionTimes] = useState<Record<string, number>>({})
   const [questionStartTime, setQuestionStartTime] = useState<number>(Date.now())
   const [confirmedAnswers, setConfirmedAnswers] = useState<Record<string, string>>({})
+  const initializedRef = useRef(false)
 
   useEffect(() => {
+    // タブ切替で onAuthStateChange が再発火し user 参照が変わっても、
+    // 既に試験を初期化済みなら作り直さない (新しい問題セットへの差し替えを防ぐ)
+    if (initializedRef.current) return
+
     const initExam = async () => {
       if (!user) return
+      initializedRef.current = true
 
       try {
         if (resumeSessionId) {
