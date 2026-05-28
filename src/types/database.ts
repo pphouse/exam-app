@@ -28,6 +28,7 @@ export interface ExamSession {
   score: number | null
   total_questions: number
   question_ids: string[] | null
+  last_question_index: number | null
   created_at: string
 }
 

@@ -81,9 +81,15 @@ export default function Exam() {
           }
           const adjustedStart = new Date(Date.now() - elapsedSec * 1000)
 
-          // 未回答の最初の問題に移動（全問回答済みなら最初へ）
-          const firstUnansweredIndex = questions.findIndex((q) => !confirmed[q.id])
-          const startIndex = firstUnansweredIndex >= 0 ? firstUnansweredIndex : 0
+          // 中断時の問題位置が保存されていればそこから、
+          // なければ未回答の最初の問題、それもなければ先頭
+          let startIndex: number
+          if (typeof session.last_question_index === 'number') {
+            startIndex = Math.min(session.last_question_index, questions.length - 1)
+          } else {
+            const firstUnansweredIndex = questions.findIndex((q) => !confirmed[q.id])
+            startIndex = firstUnansweredIndex >= 0 ? firstUnansweredIndex : 0
+          }
 
           setState({
             sessionId: session.id,
@@ -393,7 +399,7 @@ export default function Exam() {
             if (!state) return
             if (!window.confirm('現在の回答状態を保存して中断します。ホームから続きを再開できます（タイマーは再開時にリセットされます）。')) return
             try {
-              await pauseExamSession(state.sessionId)
+              await pauseExamSession(state.sessionId, state.currentIndex)
             } catch (error) {
               console.error('Failed to pause session:', error)
             }
