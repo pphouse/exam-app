@@ -18,7 +18,7 @@ const TIME_LIMIT = 60 * 60
 export default function Exam() {
   const { user } = useAuth()
   const navigate = useNavigate()
-  const [searchParams] = useSearchParams()
+  const [searchParams, setSearchParams] = useSearchParams()
   const resumeSessionId = searchParams.get('resume')
   const [state, setState] = useState<ExamState | null>(null)
   const [loading, setLoading] = useState(true)
@@ -113,6 +113,8 @@ export default function Exam() {
             startTime: new Date(),
             timeLimit: TIME_LIMIT,
           })
+          // リロードしても同じセッションを継続できるよう URL に session ID を埋め込む
+          setSearchParams({ resume: session.id }, { replace: true })
         }
       } catch (error) {
         console.error('Failed to initialize exam:', error)
@@ -124,7 +126,7 @@ export default function Exam() {
     }
 
     initExam()
-  }, [user, navigate, resumeSessionId])
+  }, [user, navigate, resumeSessionId, setSearchParams])
 
   useEffect(() => {
     if (!state) return
