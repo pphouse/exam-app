@@ -1,0 +1,425 @@
+[
+  {
+    "qid": "Q1-005",
+    "chapter": "第1章",
+    "correct": "A",
+    "acc_notext": 100,
+    "acc_withtext": 0,
+    "ans_notext": "AAAAA",
+    "ans_withtext": "!!!!!"
+  },
+  {
+    "qid": "Q2-014",
+    "chapter": "第2章",
+    "correct": "A",
+    "acc_notext": 100,
+    "acc_withtext": 0,
+    "ans_notext": "AAAAA",
+    "ans_withtext": "!!!!C"
+  },
+  {
+    "qid": "Q1-011",
+    "chapter": "第1章",
+    "correct": "A",
+    "acc_notext": 80,
+    "acc_withtext": 20,
+    "ans_notext": "?AAAA",
+    "ans_withtext": "A!!!!"
+  },
+  {
+    "qid": "Q1-026",
+    "chapter": "第1章",
+    "correct": "A",
+    "acc_notext": 80,
+    "acc_withtext": 0,
+    "ans_notext": "?AAAA",
+    "ans_withtext": "!!!!!"
+  },
+  {
+    "qid": "Q1-028",
+    "chapter": "第1章",
+    "correct": "A",
+    "acc_notext": 40,
+    "acc_withtext": 0,
+    "ans_notext": "AACBC",
+    "ans_withtext": "!!!!!"
+  },
+  {
+    "qid": "Q4-007",
+    "chapter": "第4章",
+    "correct": "A",
+    "acc_notext": 20,
+    "acc_withtext": 20,
+    "ans_notext": "A!!!!",
+    "ans_withtext": "!!!AC"
+  },
+  {
+    "qid": "Q5-007",
+    "chapter": "第5章",
+    "correct": "A",
+    "acc_notext": 20,
+    "acc_withtext": 0,
+    "ans_notext": "!!A!!",
+    "ans_withtext": "!!!!!"
+  },
+  {
+    "qid": "Q1-004",
+    "chapter": "第1章",
+    "correct": "B",
+    "acc_notext": 0,
+    "acc_withtext": 0,
+    "ans_notext": "AAAAA",
+    "ans_withtext": "!!A!A"
+  },
+  {
+    "qid": "Q1-025",
+    "chapter": "第1章",
+    "correct": "C",
+    "acc_notext": 0,
+    "acc_withtext": 0,
+    "ans_notext": "AAAAA",
+    "ans_withtext": "!!!!?"
+  },
+  {
+    "qid": "Q2-006",
+    "chapter": "第2章",
+    "correct": "C",
+    "acc_notext": 0,
+    "acc_withtext": 0,
+    "ans_notext": "AAAAA",
+    "ans_withtext": "!!A!!"
+  },
+  {
+    "qid": "Q2-011",
+    "chapter": "第2章",
+    "correct": "B",
+    "acc_notext": 0,
+    "acc_withtext": 0,
+    "ans_notext": "AAAAA",
+    "ans_withtext": "!!!!!"
+  },
+  {
+    "qid": "Q2-019",
+    "chapter": "第2章",
+    "correct": "D",
+    "acc_notext": 0,
+    "acc_withtext": 0,
+    "ans_notext": "AAAAA",
+    "ans_withtext": "!!!!!"
+  },
+  {
+    "qid": "Q2-022",
+    "chapter": "第2章",
+    "correct": "B",
+    "acc_notext": 0,
+    "acc_withtext": 0,
+    "ans_notext": "?AAAA",
+    "ans_withtext": "!!!!C"
+  },
+  {
+    "qid": "Q2-026",
+    "chapter": "第2章",
+    "correct": "D",
+    "acc_notext": 0,
+    "acc_withtext": 0,
+    "ans_notext": "AAAAA",
+    "ans_withtext": "!!!!!"
+  },
+  {
+    "qid": "Q2-027",
+    "chapter": "第2章",
+    "correct": "B",
+    "acc_notext": 0,
+    "acc_withtext": 0,
+    "ans_notext": "A????",
+    "ans_withtext": "!!!!!"
+  },
+  {
+    "qid": "Q2-030",
+    "chapter": "第2章",
+    "correct": "B",
+    "acc_notext": 0,
+    "acc_withtext": 0,
+    "ans_notext": "A!!!!",
+    "ans_withtext": "C!!!!"
+  },
+  {
+    "qid": "Q2-040",
+    "chapter": "第2章",
+    "correct": "C",
+    "acc_notext": 0,
+    "acc_withtext": 20,
+    "ans_notext": "A!!!!",
+    "ans_withtext": "!!!!C"
+  },
+  {
+    "qid": "Q2-041",
+    "chapter": "第2章",
+    "correct": "B",
+    "acc_notext": 0,
+    "acc_withtext": 0,
+    "ans_notext": "!!!!!",
+    "ans_withtext": "!!!!!"
+  },
+  {
+    "qid": "Q2-045",
+    "chapter": "第2章",
+    "correct": "D",
+    "acc_notext": 0,
+    "acc_withtext": 0,
+    "ans_notext": "!?!!!",
+    "ans_withtext": "!!!C!"
+  },
+  {
+    "qid": "Q2-047",
+    "chapter": "第2章",
+    "correct": "A",
+    "acc_notext": 0,
+    "acc_withtext": 0,
+    "ans_notext": "!!!!!",
+    "ans_withtext": "!!!!!"
+  },
+  {
+    "qid": "Q2-049",
+    "chapter": "第2章",
+    "correct": "C",
+    "acc_notext": 0,
+    "acc_withtext": 20,
+    "ans_notext": "!?!!!",
+    "ans_withtext": "!!!C!"
+  },
+  {
+    "qid": "Q3-003",
+    "chapter": "第3章",
+    "correct": "D",
+    "acc_notext": 0,
+    "acc_withtext": 0,
+    "ans_notext": "!!!!!",
+    "ans_withtext": "!!!!!"
+  },
+  {
+    "qid": "Q3-010",
+    "chapter": "第3章",
+    "correct": "D",
+    "acc_notext": 0,
+    "acc_withtext": 0,
+    "ans_notext": "!!!!?",
+    "ans_withtext": "!?!!!"
+  },
+  {
+    "qid": "Q3-012",
+    "chapter": "第3章",
+    "correct": "B",
+    "acc_notext": 0,
+    "acc_withtext": 0,
+    "ans_notext": "!!!!!",
+    "ans_withtext": "!!!!!"
+  },
+  {
+    "qid": "Q3-015",
+    "chapter": "第3章",
+    "correct": "D",
+    "acc_notext": 0,
+    "acc_withtext": 0,
+    "ans_notext": "!!!?!",
+    "ans_withtext": "!!!!?"
+  },
+  {
+    "qid": "Q3-030",
+    "chapter": "第3章",
+    "correct": "B",
+    "acc_notext": 0,
+    "acc_withtext": 0,
+    "ans_notext": "!!!!!",
+    "ans_withtext": "!!!!!"
+  },
+  {
+    "qid": "Q3-034",
+    "chapter": "第3章",
+    "correct": "C",
+    "acc_notext": 0,
+    "acc_withtext": 0,
+    "ans_notext": "!!!!!",
+    "ans_withtext": "!!!!!"
+  },
+  {
+    "qid": "Q3-057",
+    "chapter": "第3章",
+    "correct": "A",
+    "acc_notext": 0,
+    "acc_withtext": 0,
+    "ans_notext": "B!!!!",
+    "ans_withtext": "!!!!!"
+  },
+  {
+    "qid": "Q4-003",
+    "chapter": "第4章",
+    "correct": "D",
+    "acc_notext": 0,
+    "acc_withtext": 0,
+    "ans_notext": "!!!!!",
+    "ans_withtext": "!!!!!"
+  },
+  {
+    "qid": "Q4-013",
+    "chapter": "第4章",
+    "correct": "C",
+    "acc_notext": 0,
+    "acc_withtext": 0,
+    "ans_notext": "!!!!!",
+    "ans_withtext": "!!!!!"
+  },
+  {
+    "qid": "Q4-022",
+    "chapter": "第4章",
+    "correct": "B",
+    "acc_notext": 0,
+    "acc_withtext": 0,
+    "ans_notext": "!!!D!",
+    "ans_withtext": "!!!A!"
+  },
+  {
+    "qid": "Q4-023",
+    "chapter": "第4章",
+    "correct": "C",
+    "acc_notext": 0,
+    "acc_withtext": 0,
+    "ans_notext": "!!!!!",
+    "ans_withtext": "!!!!!"
+  },
+  {
+    "qid": "Q5-002",
+    "chapter": "第5章",
+    "correct": "A",
+    "acc_notext": 0,
+    "acc_withtext": 0,
+    "ans_notext": "!!!!!",
+    "ans_withtext": "!!!!!"
+  },
+  {
+    "qid": "Q5-008",
+    "chapter": "第5章",
+    "correct": "A",
+    "acc_notext": 0,
+    "acc_withtext": 20,
+    "ans_notext": "!!!!!",
+    "ans_withtext": "!A!!!"
+  },
+  {
+    "qid": "Q5-011",
+    "chapter": "第5章",
+    "correct": "C",
+    "acc_notext": 0,
+    "acc_withtext": 0,
+    "ans_notext": "!!!!!",
+    "ans_withtext": "!!!!!"
+  },
+  {
+    "qid": "Q5-026",
+    "chapter": "第5章",
+    "correct": "D",
+    "acc_notext": 0,
+    "acc_withtext": 0,
+    "ans_notext": "!!!A!",
+    "ans_withtext": "!!!!!"
+  },
+  {
+    "qid": "Q5-037",
+    "chapter": "第5章",
+    "correct": "C",
+    "acc_notext": 0,
+    "acc_withtext": 0,
+    "ans_notext": "!!!!!",
+    "ans_withtext": "!!A!!"
+  },
+  {
+    "qid": "Q5-042",
+    "chapter": "第5章",
+    "correct": "D",
+    "acc_notext": 0,
+    "acc_withtext": 0,
+    "ans_notext": "!!!!!",
+    "ans_withtext": "!!!!!"
+  },
+  {
+    "qid": "Q6-005",
+    "chapter": "第6章",
+    "correct": "C",
+    "acc_notext": 0,
+    "acc_withtext": 0,
+    "ans_notext": "!!A!!",
+    "ans_withtext": "!!A!!"
+  },
+  {
+    "qid": "Q6-007",
+    "chapter": "第6章",
+    "correct": "C",
+    "acc_notext": 0,
+    "acc_withtext": 0,
+    "ans_notext": "!!!!!",
+    "ans_withtext": "!!!!!"
+  },
+  {
+    "qid": "Q6-008",
+    "chapter": "第6章",
+    "correct": "C",
+    "acc_notext": 0,
+    "acc_withtext": 0,
+    "ans_notext": "!!!!!",
+    "ans_withtext": "!A!!!"
+  },
+  {
+    "qid": "Q6-010",
+    "chapter": "第6章",
+    "correct": "D",
+    "acc_notext": 0,
+    "acc_withtext": 0,
+    "ans_notext": "A!!!!",
+    "ans_withtext": "!!!!!"
+  },
+  {
+    "qid": "Q6-013",
+    "chapter": "第6章",
+    "correct": "B",
+    "acc_notext": 0,
+    "acc_withtext": 0,
+    "ans_notext": "!!!!!",
+    "ans_withtext": "!!C!!"
+  },
+  {
+    "qid": "Q6-014",
+    "chapter": "第6章",
+    "correct": "C",
+    "acc_notext": 0,
+    "acc_withtext": 0,
+    "ans_notext": "!!!!!",
+    "ans_withtext": "!!!!!"
+  },
+  {
+    "qid": "Q6-015",
+    "chapter": "第6章",
+    "correct": "B",
+    "acc_notext": 0,
+    "acc_withtext": 0,
+    "ans_notext": "!!!!!",
+    "ans_withtext": "!!!!!"
+  },
+  {
+    "qid": "Q6-016",
+    "chapter": "第6章",
+    "correct": "B",
+    "acc_notext": 0,
+    "acc_withtext": 0,
+    "ans_notext": "!!!!!",
+    "ans_withtext": "A!!!!"
+  },
+  {
+    "qid": "Q6-035",
+    "chapter": "第6章",
+    "correct": "C",
+    "acc_notext": 0,
+    "acc_withtext": 20,
+    "ans_notext": "!!!A!",
+    "ans_withtext": "!!C!!"
+  }
+]
