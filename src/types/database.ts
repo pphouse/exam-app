@@ -10,7 +10,10 @@ export interface Question {
   choice_b: string
   choice_c: string
   choice_d: string
+  choice_e: string | null
   correct_answer: string
+  question_type: 'single' | 'multi'
+  why_wrong: Record<string, string> | null
   explanation: string | null
   incorrect_explanation: string | null
   source: string | null

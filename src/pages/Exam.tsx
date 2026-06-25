@@ -11,7 +11,16 @@ import {
 } from '../services/exam'
 import { supabase } from '../lib/supabase'
 import InlineFeedback from '../components/InlineFeedback'
-import type { Question, ExamState } from '../types'
+import type { ExamState } from '../types'
+import {
+  isMulti,
+  isAnswerCorrect,
+  normalizeAnswer,
+  correctSet,
+  correctLabel,
+  visibleOptions,
+  choiceText,
+} from '../lib/answer'
 
 const TIME_LIMIT = 60 * 60
 
@@ -150,16 +159,33 @@ export default function Exam() {
     return () => clearInterval(interval)
   }, [state])
 
-  const handleAnswer = (answer: string) => {
+  const handleAnswer = (option: string) => {
     if (!state) return
-    const questionId = state.questions[state.currentIndex].id
+    const question = state.questions[state.currentIndex]
+    const questionId = question.id
     if (confirmedAnswers[questionId]) return // 確定済みは変更不可
+
+    let next: string
+    if (isMulti(question)) {
+      // 2つ選べ: トグル選択。最大2つまで
+      const current = (state.answers[questionId] || '').split(',').filter(Boolean)
+      if (current.includes(option)) {
+        next = current.filter((o) => o !== option).join(',')
+      } else {
+        const added = [...current, option]
+        // 3つ目を選んだら最も古いものを外して2つ維持
+        const limited = added.length > 2 ? added.slice(added.length - 2) : added
+        next = normalizeAnswer(limited)
+      }
+    } else {
+      next = option
+    }
 
     setState({
       ...state,
       answers: {
         ...state.answers,
-        [questionId]: answer,
+        [questionId]: next,
       },
     })
   }
@@ -233,7 +259,7 @@ export default function Exam() {
       let correctCount = 0
       for (const question of state.questions) {
         const userAnswer = confirmedAnswers[question.id]
-        if (userAnswer && userAnswer === question.correct_answer) correctCount++
+        if (isAnswerCorrect(question, userAnswer)) correctCount++
       }
 
       const score = Math.round((correctCount / state.questions.length) * 100)
@@ -263,7 +289,12 @@ export default function Exam() {
   const currentQuestion = state.questions[state.currentIndex]
   const currentAnswer = state.answers[currentQuestion.id]
   const isConfirmed = !!confirmedAnswers[currentQuestion.id]
-  const isCorrect = isConfirmed && confirmedAnswers[currentQuestion.id] === currentQuestion.correct_answer
+  const isCorrect = isConfirmed && isAnswerCorrect(currentQuestion, confirmedAnswers[currentQuestion.id])
+  const multi = isMulti(currentQuestion)
+  const selectedSet = (currentAnswer || '').split(',').filter(Boolean)
+  // 2つ選べはちょうど2つ選択しないと確定不可
+  const canConfirm = multi ? selectedSet.length === 2 : !!currentAnswer
+  const correctOptions = correctSet(currentQuestion)
   const minutes = Math.floor(remainingTime / 60)
   const seconds = remainingTime % 60
   const confirmedCount = Object.keys(confirmedAnswers).length
@@ -299,14 +330,18 @@ export default function Exam() {
           </span>
         </div>
 
-        <p className="text-gray-900 mb-6 whitespace-pre-wrap">{currentQuestion.question_text}</p>
+        <p className="text-gray-900 mb-2 whitespace-pre-wrap">{currentQuestion.question_text}</p>
+        {multi && (
+          <p className="text-sm font-medium text-blue-700 mb-4">
+            ※ 正しいものを<strong>2つ</strong>選んでください
+          </p>
+        )}
 
         <div className="space-y-2">
-          {['A', 'B', 'C', 'D'].map((option) => {
-            const choiceKey = `choice_${option.toLowerCase()}` as keyof Question
-            const choiceText = currentQuestion[choiceKey] as string
-            const isThisCorrect = option === currentQuestion.correct_answer
-            const isSelected = currentAnswer === option
+          {visibleOptions(currentQuestion).map((option) => {
+            const text = choiceText(currentQuestion, option)
+            const isThisCorrect = correctOptions.includes(option)
+            const isSelected = selectedSet.includes(option)
 
             let borderClass = 'border-gray-200'
             let bgClass = ''
@@ -328,25 +363,40 @@ export default function Exam() {
                 key={option}
                 onClick={() => handleAnswer(option)}
                 disabled={isConfirmed}
-                className={`w-full text-left p-3 rounded-lg border ${borderClass} ${bgClass} transition-colors disabled:cursor-default`}
+                className={`w-full text-left p-3 rounded-lg border ${borderClass} ${bgClass} transition-colors disabled:cursor-default flex items-start gap-2`}
               >
-                <span className="font-medium text-gray-700 mr-2">{option}.</span>
-                <span className="text-gray-900">{choiceText}</span>
-                {isConfirmed && isThisCorrect && (
-                  <span className="ml-2 text-green-600 text-sm">← 正解</span>
+                {multi && (
+                  <span
+                    className={`mt-0.5 w-4 h-4 flex-shrink-0 rounded border ${
+                      isSelected ? 'bg-gray-900 border-gray-900' : 'border-gray-400'
+                    } flex items-center justify-center`}
+                  >
+                    {isSelected && <span className="text-white text-[10px] leading-none">✓</span>}
+                  </span>
                 )}
+                <span>
+                  <span className="font-medium text-gray-700 mr-2">{option}.</span>
+                  <span className="text-gray-900">{text}</span>
+                  {isConfirmed && isThisCorrect && (
+                    <span className="ml-2 text-green-600 text-sm">← 正解</span>
+                  )}
+                </span>
               </button>
             )
           })}
         </div>
 
-        {!isConfirmed && currentAnswer && (
+        {!isConfirmed && (
           <button
             onClick={handleConfirmAnswer}
-            disabled={confirming}
-            className="w-full mt-4 bg-gray-900 text-white py-3 rounded-lg font-medium hover:bg-gray-800 transition-colors disabled:opacity-50"
+            disabled={confirming || !canConfirm}
+            className="w-full mt-4 bg-gray-900 text-white py-3 rounded-lg font-medium hover:bg-gray-800 transition-colors disabled:opacity-40"
           >
-            {confirming ? '送信中...' : '回答する'}
+            {confirming
+              ? '送信中...'
+              : multi && selectedSet.length !== 2
+              ? `あと${2 - selectedSet.length}つ選択`
+              : '回答する'}
           </button>
         )}
       </div>
@@ -356,19 +406,30 @@ export default function Exam() {
         <>
           <div className={`rounded-lg p-4 mb-4 ${isCorrect ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}`}>
             <span className={`font-bold ${isCorrect ? 'text-green-700' : 'text-red-700'}`}>
-              {isCorrect ? '正解!' : `不正解 - 正解は ${currentQuestion.correct_answer}`}
+              {isCorrect ? '正解!' : `不正解 - 正解は ${correctLabel(currentQuestion)}`}
             </span>
           </div>
 
           <div className="bg-gray-50 rounded-lg p-4 mb-4 border border-gray-200">
             <h3 className="font-medium text-gray-900 mb-2">解説</h3>
             <p className="text-gray-700 text-sm whitespace-pre-wrap">{currentQuestion.explanation}</p>
-            {currentQuestion.incorrect_explanation && (
+            {currentQuestion.why_wrong && Object.keys(currentQuestion.why_wrong).length > 0 ? (
+              <div className="mt-3 pt-3 border-t border-gray-200">
+                <h4 className="font-medium text-gray-900 mb-1 text-sm">選択肢別の解説</h4>
+                <ul className="space-y-1">
+                  {Object.entries(currentQuestion.why_wrong).map(([opt, why]) => (
+                    <li key={opt} className="text-gray-700 text-sm">
+                      <span className="font-medium">{opt}.</span> {why}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : currentQuestion.incorrect_explanation ? (
               <div className="mt-3 pt-3 border-t border-gray-200">
                 <h4 className="font-medium text-gray-900 mb-1 text-sm">選択肢別の解説</h4>
                 <p className="text-gray-700 text-sm whitespace-pre-wrap">{currentQuestion.incorrect_explanation}</p>
               </div>
-            )}
+            ) : null}
             <InlineFeedback questionId={currentQuestion.id} />
           </div>
         </>

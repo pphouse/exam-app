@@ -3,7 +3,16 @@ import { useAuth } from '../hooks/useAuth'
 import { getRandomQuestionByChapter, getAllChapters, getUnansweredQuestionByChapter, getUnansweredCountByChapter } from '../services/questions'
 import { createExamSession, submitAnswer } from '../services/exam'
 import InlineFeedback from '../components/InlineFeedback'
-import type { Question, PracticeState } from '../types'
+import type { PracticeState } from '../types'
+import {
+  isMulti,
+  isAnswerCorrect,
+  normalizeAnswer,
+  correctSet,
+  correctLabel,
+  visibleOptions,
+  choiceText,
+} from '../lib/answer'
 
 interface ExtendedPracticeState extends PracticeState {
   unansweredOnly: boolean
@@ -63,9 +72,21 @@ export default function Practice() {
     }
   }
 
-  const handleSelectAnswer = (answer: string) => {
+  const handleSelectAnswer = (option: string) => {
     if (!state?.currentQuestion || state.showAnswer) return
-    setSelectedAnswer(answer)
+    const q = state.currentQuestion
+    if (isMulti(q)) {
+      const current = (selectedAnswer || '').split(',').filter(Boolean)
+      if (current.includes(option)) {
+        setSelectedAnswer(current.filter((o) => o !== option).join(',') || null)
+      } else {
+        const added = [...current, option]
+        const limited = added.length > 2 ? added.slice(added.length - 2) : added
+        setSelectedAnswer(normalizeAnswer(limited))
+      }
+    } else {
+      setSelectedAnswer(option)
+    }
   }
 
   const handleConfirmAnswer = async () => {
@@ -74,7 +95,7 @@ export default function Practice() {
     const timeTaken = Math.round((Date.now() - questionStartTime) / 1000)
     setState({ ...state, showAnswer: true })
 
-    const isCorrect = selectedAnswer === state.currentQuestion.correct_answer
+    const isCorrect = isAnswerCorrect(state.currentQuestion, selectedAnswer)
     setStats((prev) => ({
       correct: prev.correct + (isCorrect ? 1 : 0),
       total: prev.total + 1,
@@ -218,8 +239,12 @@ export default function Practice() {
   const question = state.currentQuestion
   if (!question) return null
 
-  const isCorrect = selectedAnswer === question.correct_answer
+  const isCorrect = isAnswerCorrect(question, selectedAnswer)
   const accuracy = stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : 0
+  const multi = isMulti(question)
+  const selectedSet = (selectedAnswer || '').split(',').filter(Boolean)
+  const canConfirm = multi ? selectedSet.length === 2 : !!selectedAnswer
+  const correctOptions = correctSet(question)
 
   return (
     <div className="max-w-2xl mx-auto">
@@ -253,14 +278,18 @@ export default function Practice() {
           </span>
         </div>
 
-        <p className="text-gray-900 mb-6 whitespace-pre-wrap">{question.question_text}</p>
+        <p className="text-gray-900 mb-2 whitespace-pre-wrap">{question.question_text}</p>
+        {multi && (
+          <p className="text-sm font-medium text-blue-700 mb-4">
+            ※ 正しいものを<strong>2つ</strong>選んでください
+          </p>
+        )}
 
         <div className="space-y-2">
-          {['A', 'B', 'C', 'D'].map((option) => {
-            const choiceKey = `choice_${option.toLowerCase()}` as keyof Question
-            const choiceText = question[choiceKey] as string
-            const isThisCorrect = option === question.correct_answer
-            const isSelected = option === selectedAnswer
+          {visibleOptions(question).map((option) => {
+            const text = choiceText(question, option)
+            const isThisCorrect = correctOptions.includes(option)
+            const isSelected = selectedSet.includes(option)
 
             let borderClass = 'border-gray-200'
             let bgClass = ''
@@ -282,25 +311,37 @@ export default function Practice() {
                 key={option}
                 onClick={() => handleSelectAnswer(option)}
                 disabled={state.showAnswer}
-                className={`w-full text-left p-3 rounded-lg border ${borderClass} ${bgClass} transition-colors disabled:cursor-default`}
+                className={`w-full text-left p-3 rounded-lg border ${borderClass} ${bgClass} transition-colors disabled:cursor-default flex items-start gap-2`}
               >
-                <span className="font-medium text-gray-700 mr-2">{option}.</span>
-                <span className="text-gray-900">{choiceText}</span>
-                {state.showAnswer && isThisCorrect && (
-                  <span className="ml-2 text-green-600 text-sm">← 正解</span>
+                {multi && (
+                  <span
+                    className={`mt-0.5 w-4 h-4 flex-shrink-0 rounded border ${
+                      isSelected ? 'bg-gray-900 border-gray-900' : 'border-gray-400'
+                    } flex items-center justify-center`}
+                  >
+                    {isSelected && <span className="text-white text-[10px] leading-none">✓</span>}
+                  </span>
                 )}
+                <span>
+                  <span className="font-medium text-gray-700 mr-2">{option}.</span>
+                  <span className="text-gray-900">{text}</span>
+                  {state.showAnswer && isThisCorrect && (
+                    <span className="ml-2 text-green-600 text-sm">← 正解</span>
+                  )}
+                </span>
               </button>
             )
           })}
         </div>
 
         {/* Confirm button */}
-        {!state.showAnswer && selectedAnswer && (
+        {!state.showAnswer && (
           <button
             onClick={handleConfirmAnswer}
-            className="w-full mt-4 bg-gray-900 text-white py-3 rounded-lg font-medium hover:bg-gray-800 transition-colors"
+            disabled={!canConfirm}
+            className="w-full mt-4 bg-gray-900 text-white py-3 rounded-lg font-medium hover:bg-gray-800 transition-colors disabled:opacity-40"
           >
-            回答する
+            {multi && selectedSet.length !== 2 ? `あと${2 - selectedSet.length}つ選択` : '回答する'}
           </button>
         )}
       </div>
@@ -310,19 +351,30 @@ export default function Practice() {
         <>
           <div className={`rounded-lg p-4 mb-4 ${isCorrect ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}`}>
             <span className={`font-bold ${isCorrect ? 'text-green-700' : 'text-red-700'}`}>
-              {isCorrect ? '正解!' : `不正解 - 正解は ${question.correct_answer}`}
+              {isCorrect ? '正解!' : `不正解 - 正解は ${correctLabel(question)}`}
             </span>
           </div>
 
           <div className="bg-gray-50 rounded-lg p-4 mb-4 border border-gray-200">
             <h3 className="font-medium text-gray-900 mb-2">解説</h3>
             <p className="text-gray-700 text-sm whitespace-pre-wrap">{question.explanation}</p>
-            {question.incorrect_explanation && (
+            {question.why_wrong && Object.keys(question.why_wrong).length > 0 ? (
+              <div className="mt-3 pt-3 border-t border-gray-200">
+                <h4 className="font-medium text-gray-900 mb-1 text-sm">選択肢別の解説</h4>
+                <ul className="space-y-1">
+                  {Object.entries(question.why_wrong).map(([opt, why]) => (
+                    <li key={opt} className="text-gray-700 text-sm">
+                      <span className="font-medium">{opt}.</span> {why}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ) : question.incorrect_explanation ? (
               <div className="mt-3 pt-3 border-t border-gray-200">
                 <h4 className="font-medium text-gray-900 mb-1 text-sm">選択肢別の解説</h4>
                 <p className="text-gray-700 text-sm whitespace-pre-wrap">{question.incorrect_explanation}</p>
               </div>
-            )}
+            ) : null}
             <InlineFeedback questionId={question.id} />
           </div>
         </>

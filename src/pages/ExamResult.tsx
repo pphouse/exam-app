@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase'
 import { getSessionAnswers } from '../services/exam'
 import InlineFeedback from '../components/InlineFeedback'
 import type { Question, Answer, ExamSession } from '../types'
+import { visibleOptions, choiceText, correctSet } from '../lib/answer'
 
 interface ResultData {
   session: ExamSession
@@ -192,11 +193,10 @@ export default function ExamResult() {
                 </p>
 
                 <div className="space-y-2 mb-4">
-                  {['A', 'B', 'C', 'D'].map((option) => {
-                    const choiceKey = `choice_${option.toLowerCase()}` as keyof Question
-                    const choiceText = question[choiceKey] as string
-                    const isCorrect = option === question.correct_answer
-                    const isUserAnswer = option === answer.user_answer
+                  {visibleOptions(question).map((option) => {
+                    const text = choiceText(question, option)
+                    const isCorrect = correctSet(question).includes(option)
+                    const isUserAnswer = (answer.user_answer || '').split(',').includes(option)
 
                     let bgClass = ''
                     let borderClass = 'border-gray-200'
@@ -214,7 +214,7 @@ export default function ExamResult() {
                         className={`p-3 rounded-lg border ${bgClass} ${borderClass}`}
                       >
                         <span className="font-medium text-gray-700 mr-2">{option}.</span>
-                        <span className="text-gray-900">{choiceText}</span>
+                        <span className="text-gray-900">{text}</span>
                         {isCorrect && (
                           <span className="ml-2 text-green-600 text-sm">← 正解</span>
                         )}

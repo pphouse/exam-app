@@ -9,22 +9,24 @@ const MODEL = process.env.SOLVE_MODEL || 'claude-haiku-4-5-20251001';
 const TRIALS = 2;
 const CONCURRENCY = 4;
 const MODEL_TAG = MODEL.includes('haiku') ? 'haiku' : MODEL.includes('sonnet') ? 'sonnet' : MODEL.includes('opus') ? 'opus' : 'model';
-const OUT = `${DIR}/solve-final-${MODEL_TAG}.json`;
+const QFILE = process.env.QFILE || 'questions-final.json';
+const OUTTAG = process.env.OUTTAG || 'final';
+const OUT = `${DIR}/solve-${OUTTAG}-${MODEL_TAG}.json`;
 const LETTERS = ['A','B','C','D','E'];
 
-const questions = JSON.parse(fs.readFileSync(`${DIR}/questions-final.json`, 'utf8'))
-  .filter(q => !q.gen_error);
+const questions = JSON.parse(fs.readFileSync(`${DIR}/${QFILE}`, 'utf8'))
+  .filter(q => !q.gen_error && !q._fix_error);
 const nMulti = questions.filter(q=>q.question_type==='multi').length;
 console.log(`対象: ${questions.length}問 (全て選べ: ${nMulti}, 5択単一: ${questions.length-nMulti}) | ${MODEL}`);
 
 const SYS_SINGLE = `あなたは医学部の学生です。基礎医学や一般的な医療の知識はありますが、生成AIや医療情報に関する専門教材・ガイドラインは学んでいません。一般常識・基礎的な医学知識・消去法だけを使って五択問題に答えてください。出力は A B C D E のいずれか1文字だけ。それ以外は一切出力しないこと。`;
-const SYS_MULTI = `あなたは医学部の学生です。基礎医学や一般的な医療の知識はありますが、生成AIや医療情報に関する専門教材・ガイドラインは学んでいません。一般常識・基礎的な医学知識・消去法だけを使って問題に答えてください。正しいと思う選択肢を全て選び、アルファベットをカンマ区切りで出力（例: A,C）。それ以外は一切出力しないこと。`;
+const SYS_MULTI = `あなたは医学部の学生です。基礎医学や一般的な医療の知識はありますが、生成AIや医療情報に関する専門教材・ガイドラインは学んでいません。一般常識・基礎的な医学知識・消去法だけを使って問題に答えてください。正しい選択肢を「ちょうど2つ」選び、アルファベットをカンマ区切りで出力（例: A,C）。必ず2つ。それ以外は一切出力しないこと。`;
 
 function buildPrompt(q) {
   const opts = LETTERS.map(L => `${L}. ${q.choices[L]}`).join('\n');
   const sys = q.question_type === 'multi' ? SYS_MULTI : SYS_SINGLE;
   const ask = q.question_type === 'multi'
-    ? '正しいものを全て選んでください（例: A,C）:'
+    ? '正しいものをちょうど2つ選んでください（例: A,C）:'
     : '答え(1文字):';
   return `${sys}\n\n問題: ${q.question_text}\n${opts}\n\n${ask}`;
 }

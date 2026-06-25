@@ -70,6 +70,10 @@ export async function pauseExamSession(
   if (error) throw error
 }
 
+function normalize(a: string): string {
+  return (a || '').split(',').map((s) => s.trim()).filter(Boolean).sort().join(',')
+}
+
 export async function submitAnswer(
   sessionId: string,
   questionId: string,
@@ -77,7 +81,7 @@ export async function submitAnswer(
   correctAnswer: string,
   timeTakenSeconds?: number
 ): Promise<Answer> {
-  const isCorrect = userAnswer === correctAnswer
+  const isCorrect = normalize(userAnswer) === normalize(correctAnswer)
 
   const { data, error } = await supabase
     .from('answers')
