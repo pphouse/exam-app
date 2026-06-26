@@ -8,6 +8,13 @@ export async function createExamSession(
   chapter: string | null = null,
   questionIds: string[] | null = null
 ): Promise<ExamSession> {
+  // 新規開始前に、回答が1件も無い「空の」未完了セッションを掃除する。
+  // (試験ページを開いただけ・二重生成などで溜まる空セッションが、中断した本物の
+  //  セッションより新しく見えて再開を奪うのを防ぐ。回答済みセッションは残す。)
+  if (mode === 'exam') {
+    await cleanupEmptyExamSessions(userId)
+  }
+
   const { data, error } = await supabase
     .from('exam_sessions')
     .insert({
@@ -25,6 +32,30 @@ export async function createExamSession(
   return data
 }
 
+// 回答が1件も無い未完了の試験セッションを削除する（進捗のあるものは残す）
+export async function cleanupEmptyExamSessions(userId: string): Promise<void> {
+  const { data: openSessions, error } = await supabase
+    .from('exam_sessions')
+    .select('id')
+    .eq('user_id', userId)
+    .eq('mode', 'exam')
+    .is('finished_at', null)
+
+  if (error || !openSessions || openSessions.length === 0) return
+
+  const ids = openSessions.map((s) => s.id)
+  const { data: answered } = await supabase
+    .from('answers')
+    .select('session_id')
+    .in('session_id', ids)
+
+  const withAnswers = new Set((answered || []).map((a) => a.session_id))
+  const emptyIds = ids.filter((id) => !withAnswers.has(id))
+  if (emptyIds.length > 0) {
+    await supabase.from('exam_sessions').delete().in('id', emptyIds)
+  }
+}
+
 export async function getUnfinishedExamSession(userId: string): Promise<ExamSession | null> {
   const { data, error } = await supabase
     .from('exam_sessions')
@@ -34,11 +65,18 @@ export async function getUnfinishedExamSession(userId: string): Promise<ExamSess
     .is('finished_at', null)
     .not('question_ids', 'is', null)
     .order('started_at', { ascending: false })
-    .limit(1)
-    .maybeSingle()
+    .limit(25)
 
   if (error) throw error
-  return data
+  if (!data || data.length === 0) return null
+
+  // 「保存して中断」したセッションは last_question_index が記録される。
+  // 中断済みセッションを最優先で返し、それ以外（開いただけの新しい空セッション等）に
+  // 再開を奪われないようにする。中断済みが無ければ最新の未完了を返す。
+  const paused = data.find(
+    (s) => s.last_question_index !== null && s.last_question_index !== undefined
+  )
+  return paused ?? data[0]
 }
 
 export async function abandonExamSession(sessionId: string): Promise<void> {
