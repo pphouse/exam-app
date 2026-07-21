@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { getAllFeedback } from '../../services/feedback'
+import type { FeedbackQuestion } from '../../services/feedback'
 import type { QuestionFeedback, FeedbackType } from '../../types'
 
 const feedbackTypeLabels: Record<FeedbackType, string> = {
@@ -21,14 +22,44 @@ const feedbackTypeColors: Record<FeedbackType, string> = {
 }
 
 type FeedbackWithQuestion = QuestionFeedback & {
-  question: { question_id: string; question_text: string }
+  question: FeedbackQuestion
   profile: { email: string; full_name: string | null } | null
+}
+
+const OPTIONS = ['A', 'B', 'C', 'D', 'E'] as const
+
+// 正解の集合 (例: "A,C" -> ["A","C"])
+function correctSet(correct: string): string[] {
+  return (correct || '')
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean)
+}
+
+// 表示する選択肢 (Eが無ければ4択)
+function visibleOptions(q: FeedbackQuestion): string[] {
+  return OPTIONS.filter((o) => o !== 'E' || !!q.choice_e)
+}
+
+function choiceText(q: FeedbackQuestion, option: string): string {
+  const key = `choice_${option.toLowerCase()}` as keyof FeedbackQuestion
+  return (q[key] as string) || ''
 }
 
 export default function AdminFeedback() {
   const [feedback, setFeedback] = useState<FeedbackWithQuestion[]>([])
   const [loading, setLoading] = useState(true)
   const [filterType, setFilterType] = useState<FeedbackType | ''>('')
+  const [expanded, setExpanded] = useState<Set<string>>(new Set())
+
+  const toggleExpanded = (id: string) => {
+    setExpanded((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id)
+      else next.add(id)
+      return next
+    })
+  }
 
   useEffect(() => {
     const fetchFeedback = async () => {
@@ -116,15 +147,99 @@ export default function AdminFeedback() {
 
             <div className="mb-2">
               <span className="text-xs text-gray-500 mr-2">{item.question?.question_id}</span>
-              <span className="text-sm text-gray-700 line-clamp-2">
+              <span className="text-sm text-gray-700">
                 {item.question?.question_text}
               </span>
             </div>
 
             {item.comment && (
-              <div className="bg-gray-50 rounded-lg p-3 text-sm text-gray-700">
+              <div className="bg-gray-50 rounded-lg p-3 text-sm text-gray-700 mb-2">
                 {item.comment}
               </div>
+            )}
+
+            {item.question && (
+              <>
+                <button
+                  onClick={() => toggleExpanded(item.id)}
+                  className="flex items-center gap-1 text-xs font-medium text-gray-600 hover:text-gray-900 transition-colors"
+                >
+                  <svg
+                    className={`w-4 h-4 transform transition-transform ${expanded.has(item.id) ? 'rotate-90' : ''}`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                  {expanded.has(item.id) ? '選択肢・解説を隠す' : '選択肢・解説を表示'}
+                </button>
+
+                {expanded.has(item.id) && (
+                  <div className="mt-3 border-t border-gray-100 pt-3 space-y-3">
+                    {/* Meta */}
+                    <div className="flex flex-wrap gap-2">
+                      {item.question.chapter && (
+                        <span className="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded">
+                          {item.question.chapter}
+                        </span>
+                      )}
+                      {item.question.difficulty && (
+                        <span className="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded">
+                          {item.question.difficulty}
+                        </span>
+                      )}
+                      <span className="px-2 py-0.5 bg-gray-100 text-gray-600 text-xs rounded">
+                        {item.question.question_type === 'multi' ? '2つ選べ' : '5択（単一）'}
+                      </span>
+                      <span className="px-2 py-0.5 bg-green-100 text-green-700 text-xs rounded font-medium">
+                        正解: {correctSet(item.question.correct_answer).join('・')}
+                      </span>
+                    </div>
+
+                    {/* Choices */}
+                    <div className="space-y-1.5">
+                      {visibleOptions(item.question).map((option) => {
+                        const isCorrect = correctSet(item.question.correct_answer).includes(option)
+                        return (
+                          <div
+                            key={option}
+                            className={`p-2 rounded-lg border text-sm ${
+                              isCorrect ? 'bg-green-50 border-green-300' : 'border-gray-200'
+                            }`}
+                          >
+                            <span className="font-medium text-gray-700 mr-2">{option}.</span>
+                            <span className="text-gray-900">{choiceText(item.question, option)}</span>
+                            {isCorrect && <span className="ml-2 text-green-600 text-xs">← 正解</span>}
+                          </div>
+                        )
+                      })}
+                    </div>
+
+                    {/* Explanation */}
+                    {item.question.explanation && (
+                      <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                        <h4 className="font-medium text-gray-900 mb-1 text-sm">解説</h4>
+                        <p className="text-gray-700 text-sm whitespace-pre-wrap">
+                          {item.question.explanation}
+                        </p>
+                        {item.question.why_wrong && Object.keys(item.question.why_wrong).length > 0 && (
+                          <div className="mt-3 pt-3 border-t border-gray-200">
+                            <h4 className="font-medium text-gray-900 mb-1 text-sm">選択肢別の解説</h4>
+                            <ul className="space-y-1">
+                              {Object.entries(item.question.why_wrong).map(([opt, why]) => (
+                                <li key={opt} className="text-gray-700 text-sm">
+                                  <span className="font-medium">{opt}.</span> {why}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </>
             )}
           </div>
         ))}

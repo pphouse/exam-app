@@ -41,15 +41,36 @@ export async function getFeedbackForQuestion(questionId: string): Promise<Questi
   return data || []
 }
 
+export interface FeedbackQuestion {
+  question_id: string
+  question_text: string
+  chapter: string | null
+  difficulty: string | null
+  question_type: 'single' | 'multi'
+  choice_a: string
+  choice_b: string
+  choice_c: string
+  choice_d: string
+  choice_e: string | null
+  correct_answer: string
+  explanation: string | null
+  why_wrong: Record<string, string> | null
+  incorrect_explanation: string | null
+}
+
 export async function getAllFeedback(): Promise<(QuestionFeedback & {
-  question: { question_id: string; question_text: string }
+  question: FeedbackQuestion
   profile: { email: string; full_name: string | null } | null
 })[]> {
   const { data, error } = await supabase
     .from('question_feedback')
     .select(`
       *,
-      question:questions(question_id, question_text),
+      question:questions(
+        question_id, question_text, chapter, difficulty, question_type,
+        choice_a, choice_b, choice_c, choice_d, choice_e,
+        correct_answer, explanation, why_wrong, incorrect_explanation
+      ),
       profile:profiles(email, full_name)
     `)
     .order('created_at', { ascending: false })
